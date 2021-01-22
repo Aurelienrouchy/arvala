@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Select from '../Select/Select';
 import { lowercase } from '../../utils/string';
 
-import './Filters.scss';
+import './Filters.css';
 
 const JOBS = ['fron-end', 'CEO', 'CTO', 'back-end', 'marketing leader'];
 const LOCATIONS = ['Paris', 'Creteil', 'Marseille', 'Lyon', 'Besancon', 'Yerres', 'illinois', 'porpoe', 'Paris 4eme', 'paris 5eme', 'tokyo', 'seoul', 'lima', 'bretagne', 'barcelone', 'madrid'];
