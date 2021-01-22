@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { capitalizeIfBold, lowercase, boldString } from '../../utils/string';
 
-import './Select.scss';
+import './Select.css';
 
 const DEFAULT_WIDTH = 300;
 
