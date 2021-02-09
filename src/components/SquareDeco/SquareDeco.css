@@ -1,0 +1,32 @@
+.square-deco {
+    box-sizing: border-box;
+    width: calc(5vw - 5px);
+    height: calc(5vw - 5px);
+    margin: 2px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    transition: background-color 1s ease;
+}
+
+.square-deco.is-animated{
+    animation: pulse 60s infinite reverse;
+}
+
+.square-deco:hover {
+    background-color: #000;
+}
+
+@keyframes pulse {
+    0% {
+      background-color: transparent;
+    }
+    90% {
+        background-color: transparent;
+    }
+    95% {
+      background-color: #000;
+    }
+    100% {
+      background-color: transparent;
+    }
+}
