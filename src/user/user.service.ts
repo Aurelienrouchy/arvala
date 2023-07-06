@@ -3,8 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { User, UserDocument } from './user.schema'
 import { CreateGoogleUserDto } from './create-user.dto'
-import { GeoPoint } from 'src/utils/GeoPoint'
-import { UserEntity } from './user-dto'
+import { UserEntity } from './user.dto'
 import { plainToClass } from 'class-transformer'
 
 @Injectable({})
@@ -13,13 +12,36 @@ export class UserService {
     @InjectModel(User.name) private userRepository: Model<UserDocument>
   ) {}
 
-  async create(user: CreateGoogleUserDto): Promise<UserEntity> {
+  async create(user): Promise<UserEntity> {
+    const isExist = await this.userRepository
+      .findOne({ name: user.name })
+      .exec()
+
+    if (isExist) {
+      throw new HttpException(`User already exist`, HttpStatus.CONFLICT)
+    }
+
     const savedUser = await new this.userRepository(user).save()
 
     return plainToClass(UserEntity, savedUser, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true
     })
+  }
+
+  async findByFilters(filters: Partial<UserEntity>): Promise<UserEntity[]> {
+    try {
+      const users = await this.userRepository.find(filters).exec()
+
+      return users.map((event) =>
+        plainToClass(UserEntity, event, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      )
+    } catch (error) {
+      throw new HttpException(`Events not found`, HttpStatus.NOT_FOUND)
+    }
   }
 
   async findAll(): Promise<UserEntity[]> {

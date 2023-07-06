@@ -1,3 +1,4 @@
+import { RelationshipsModule } from './relationships/relationships.module'
 import { PlaceModule } from './place/place.module'
 import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
@@ -9,11 +10,13 @@ import Joi from 'joi'
 
 @Module({
   imports: [
+    RelationshipsModule,
     PlaceModule,
     UserModule,
     EventsModule,
     MongooseModule.forRoot(
-      'mongodb+srv://aurelien:Prout123.!@cluster0.mywprwj.mongodb.net/cosh?retryWrites=true&w=majority&ssl=true'
+      'mongodb+srv://aurelien:Prout123.!@cluster0.mywprwj.mongodb.net/cosh?retryWrites=true&w=majority&ssl=true',
+      { autoIndex: true }
     ),
     AuthModule,
     // PassportModule.register({ defaultStrategy: 'google' }),

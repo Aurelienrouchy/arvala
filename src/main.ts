@@ -27,7 +27,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Arvala')
-    .setDescription('Arvala for Cosh API description')
+    .setDescription('Arvala for Cosh API')
     .setVersion('1.0')
     .build()
 

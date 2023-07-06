@@ -1,49 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document, SchemaTypes, Types } from 'mongoose'
+import { Document } from 'mongoose'
 import { GeoPoint } from 'src/utils/GeoPoint'
 import { BaseDBObject } from '../utils/BaseDBObject'
+import {
+  ContactsSchema,
+  PartialEventSchema,
+  PartialPlaceSchema,
+  SlugSchema,
+  SocialSchema
+} from 'src/utils/commons.schema'
+import { IPlace, ISlug, IContacts, ISocial, IEvent } from 'src/utils/types'
 
 export type UserDocument = User & Document
 export enum ROLE {
   ADMIN = 'admin',
   USER = 'user'
 }
-export enum PLAN_TYPE {
-  FREE = 'free',
-  PREMIUM = 'premium',
-  PREMIUM_PLUS = 'premium_plus'
-}
-export enum PLAN_BILLING_TYPE {
-  MONTHLY = 'monthly',
-  ANNUAL = 'annual'
-}
-export enum VERIFICATION_STATUS {
-  VERIFIED = 'verified',
-  IN_PROGRESS = 'in_progress',
-  NOT_VERIFIED = 'not_verified'
-}
+
 export enum PROVIDER_NAME {
   GOOGLE = 'google',
   APPLE = 'apple',
   EMAIL = 'email'
-}
-
-export type PhoneType = {
-  countryCode: string
-  number: string
-}
-
-@Schema({ versionKey: false })
-export class Phone {
-  constructor(phone: PhoneType) {
-    Object.assign(this, phone)
-  }
-
-  @Prop({ type: String })
-  countryCode: string
-
-  @Prop({ type: String })
-  number: string
 }
 
 @Schema({ timestamps: true, versionKey: false })
@@ -53,56 +30,44 @@ export class User extends BaseDBObject {
     Object.assign(this, partial)
   }
 
-  @Prop({ type: String, enum: ROLE, required: true, default: ROLE.USER })
-  role: ROLE
-
   @Prop({ type: String, required: true })
   name: string
-
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Place', default: [] })
-  places: Types.ObjectId[]
-
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'User', default: [] })
-  followers: Types.ObjectId[]
 
   @Prop({ type: String })
   desc: string
 
-  @Prop({
-    type: GeoPoint,
-    required: true
-  })
+  @Prop({ type: GeoPoint, required: true })
   location: GeoPoint
 
   @Prop({ type: String })
-  email: string
-
-  @Prop({ type: Phone })
-  phone: PhoneType
+  cover: string
 
   @Prop({ type: String })
-  website: string
+  address: string
 
-  @Prop({ type: String })
-  instagram: string
+  @Prop({ type: String, enum: ROLE, required: true, default: ROLE.USER })
+  role: ROLE
 
-  @Prop({ type: String })
-  facebook: string
+  @Prop({ type: [PartialPlaceSchema] })
+  places: Pick<IPlace, 'id' | 'name' | 'address'>[]
 
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Event', default: [] })
-  events: Types.ObjectId[]
+  @Prop({ type: Number })
+  followersCount: number
 
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Event', default: [] })
-  eventsLiked: Types.ObjectId[]
+  @Prop({ type: SlugSchema })
+  slugs: ISlug
 
-  @Prop({ type: String })
-  providerId: string
+  @Prop({ type: ContactsSchema })
+  contacts: IContacts
 
-  @Prop({ type: String, enum: PROVIDER_NAME, required: true })
-  providerName: PROVIDER_NAME
+  @Prop({ type: SocialSchema })
+  social: ISocial
 
-  @Prop({ type: String })
-  picture: string
+  @Prop({ type: [PartialEventSchema] })
+  events: Pick<
+    IEvent,
+    'id' | 'name' | 'place' | 'cover' | 'beginAt' | 'minPrice'
+  >[]
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User)

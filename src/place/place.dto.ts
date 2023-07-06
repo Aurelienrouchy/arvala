@@ -1,94 +1,95 @@
 import { Expose, Transform, Type } from 'class-transformer'
-import { IsDefined, IsEmail, IsOptional, IsString } from 'class-validator'
-import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
-import { GeoPoint, GeoPointEntity } from 'src/utils/GeoPoint'
-import { PRICE_RANGE } from './place.schema'
+import { IsDefined, IsOptional } from 'class-validator'
+import { AbstractEntity } from 'src/utils/BaseDBObject'
+import { GeoPointEntity } from 'src/utils/GeoPoint'
+import {
+  PRICE_RANGE,
+  PLACE_TYPES,
+  IContacts,
+  IDrink,
+  IDrinkBestPrices,
+  IHours,
+  ISlug,
+  ISocial,
+  PLACE_SUB_TYPES,
+  IGeoPoint,
+  DrinkClass,
+  ContactsClass,
+  HoursClass,
+  SlugClass,
+  SocialClass,
+  VERIFICATION_STATUS
+} from 'src/utils/types'
+import { Types } from 'mongoose'
 
 export class CreatePlaceDto extends AbstractEntity {
   @IsDefined()
-  @IsString()
   name: string
 
-  @IsDefined()
-  @IsString()
+  @IsOptional()
   desc: string
 
   @IsDefined()
-  location: GeoPoint
+  location: IGeoPoint
+
+  @IsOptional()
+  cover: string
+
+  @IsOptional()
+  photos: string[]
+
+  @IsOptional()
+  hours: IHours
+
+  @IsOptional()
+  happyHours: IHours
 
   @IsDefined()
-  @IsString()
-  image: string
+  address: string
+
+  @IsOptional()
+  slugs: ISlug
+
+  @IsOptional()
+  contacts: IContacts
+
+  @IsOptional()
+  social: ISocial
+
+  @IsOptional()
+  verificationStatus: typeof VERIFICATION_STATUS
+
+  @IsOptional()
+  price: typeof PRICE_RANGE
 
   @IsDefined()
-  openHours: number[][]
+  categories: (typeof PLACE_TYPES)[]
+
+  @IsOptional()
+  subCategories: (typeof PLACE_SUB_TYPES)[]
+
+  @IsOptional()
+  menu: string
+
+  @IsOptional()
+  drinks: [IDrink]
+
+  @IsOptional()
+  bestPrice: IDrinkBestPrices
 
   @IsDefined()
-  @IsString()
-  placeId: string
-
-  @IsOptional()
-  @IsEmail()
-  email: string
-
-  @IsDefined()
-  priceRange: PRICE_RANGE
-
-  @IsOptional()
-  categories?: string[]
-
-  @IsOptional()
-  phone?: string
-
-  @IsOptional()
-  website?: string
-
-  @IsOptional()
-  facebook?: string
-
-  @IsOptional()
-  instagram?: string
+  createdBy: Types.ObjectId
 }
 
-export class GooglePlaceEntity extends AbstractEntity {
-  constructor(partial: Partial<GooglePlaceEntity>) {
+export class PlaceEntity extends AbstractEntity {
+  constructor(partial: Partial<PlaceEntity>) {
     super()
     Object.assign(this, partial)
   }
 
   @Expose()
-  administrativeAreaLevel1: string
-
-  @Expose()
-  administrativeAreaLevel2: string
-
-  @Expose()
-  country: string
-
-  @Expose()
-  formattedAddress: string
-
-  @Expose()
-  locality: string
-
-  @Expose()
-  placeId: string
-
-  @Expose()
-  postalCode: string
-
-  @Expose()
-  route: string
-
-  @Expose()
-  streetNumber: string
-}
-
-export class PlaceEntity extends GooglePlaceEntity {
-  constructor(partial: Partial<PlaceEntity>) {
-    super(partial)
-    Object.assign(this, partial)
-  }
+  @Transform(({ obj }) => obj._id)
+  id: string
 
   @Expose()
   name: string
@@ -102,41 +103,87 @@ export class PlaceEntity extends GooglePlaceEntity {
   location: GeoPointEntity
 
   @Expose()
-  image: string
+  cover: string
 
   @Expose()
-  openHours: string
+  photos: string[]
 
   @Expose()
-  placeId: string
+  @Type(() => HoursClass)
+  hours: IHours
 
   @Expose()
-  email: string
+  @Type(() => HoursClass)
+  happyHours: IHours
 
   @Expose()
-  priceRange: PRICE_RANGE
+  address: string
 
   @Expose()
-  createdBy: string
+  @Type(() => SlugClass)
+  slugs: ISlug
+
+  @Expose()
+  @Type(() => ContactsClass)
+  contacts: IContacts
+
+  @Expose()
+  @Type(() => SocialClass)
+  social: ISocial
+
+  @Expose()
+  verificationStatus: typeof VERIFICATION_STATUS
+
+  @Expose()
+  price: typeof PRICE_RANGE
+
+  @Expose()
+  categories: (typeof PLACE_TYPES)[]
+
+  @Expose()
+  subCategories: (typeof PLACE_SUB_TYPES)[]
+
+  @Expose()
+  menu: string
+
+  @Expose()
+  @Type(() => DrinkClass)
+  drinks: [IDrink]
+
+  @Expose()
+  bestPrice: IDrinkBestPrices
+
+  @Expose()
+  createdBy: Types.ObjectId
+}
+
+export class PlaceEntityMinimize extends AbstractEntity {
+  constructor(partial: Partial<PlaceEntity>) {
+    super()
+    Object.assign(this, partial)
+  }
+
+  @Expose()
+  @Transform(({ obj }) => obj._id)
+  id: string
+
+  @Expose()
+  name: string
+
+  @Expose()
+  cover: string
+
+  @Expose()
+  distance: number
 
   @Expose()
   followersCount: number
 
   @Expose()
-  followers: string[]
+  @Type(() => GeoPointEntity)
+  @Transform(({ value }) => value.coordinates)
+  location: GeoPointEntity
 
   @Expose()
-  categories?: string[]
-
-  @Expose()
-  phone?: string
-
-  @Expose()
-  website?: string
-
-  @Expose()
-  facebook?: string
-
-  @Expose()
-  instagram?: string
+  address: string
 }

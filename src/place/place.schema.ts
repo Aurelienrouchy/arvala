@@ -1,17 +1,30 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document, SchemaTypes, Types } from 'mongoose'
 import { BaseDBObject } from '../utils/BaseDBObject'
-import { GeoPoint } from '../utils/GeoPoint'
+import {
+  ContactsSchema,
+  DrinkBestPricesSchema,
+  DrinksSchema,
+  GeoPointSchema,
+  HourSchema,
+  SlugSchema,
+  SocialSchema
+} from 'src/utils/commons.schema'
+import {
+  IContacts,
+  IDrink,
+  IDrinkBestPrices,
+  IGeoPoint,
+  IHours,
+  ISlug,
+  ISocial,
+  PLACE_SUB_TYPES,
+  PRICE_RANGE,
+  PLACE_TYPES,
+  VERIFICATION_STATUS
+} from 'src/utils/types'
 
 export type PlaceDocument = Place & Document
-
-export enum PRICE_RANGE {
-  $ = '$',
-  $$ = '$$',
-  $$$ = '$$$',
-  $$$$ = '$$$$',
-  FREE = 'FREE'
-}
 
 @Schema({ timestamps: true, versionKey: false })
 export class Place extends BaseDBObject {
@@ -29,127 +42,102 @@ export class Place extends BaseDBObject {
   name: string
 
   @Prop({
-    type: String,
-    maxlength: 5000,
-    min: 1,
-    required: true
+    type: String
   })
   desc: string
 
   @Prop({
-    type: GeoPoint,
+    type: GeoPointSchema,
     required: true
   })
-  location: GeoPoint
-
-  @Prop({
-    type: String,
-    required: true
-  })
-  image: string
-
-  @Prop({
-    type: [[Number]],
-    required: true,
-    default: []
-  })
-  openHours: number[][]
-
-  @Prop({
-    type: String,
-    required: true
-  })
-  placeId: string
+  location: IGeoPoint
 
   @Prop({
     type: String
   })
-  administrativeAreaLevel1: string
+  cover: string
+
+  @Prop({
+    type: [String]
+  })
+  photos: string[]
+
+  @Prop({
+    type: HourSchema
+  })
+  hours: IHours
+
+  @Prop({
+    type: HourSchema
+  })
+  happyHours: IHours
 
   @Prop({
     type: String
   })
-  administrativeAreaLevel2: string
+  address: string
 
   @Prop({
-    type: String
+    type: SlugSchema
   })
-  country: string
+  slugs: ISlug
 
   @Prop({
-    type: String
+    type: ContactsSchema
   })
-  formattedAddress: string
+  contacts: IContacts
 
   @Prop({
-    type: String
+    type: SocialSchema
   })
-  locality: string
-
-  @Prop({
-    type: String
-  })
-  postalCode: string
-
-  @Prop({
-    type: String
-  })
-  route: string
-
-  @Prop({
-    type: String
-  })
-  streetNumber: string
-
-  @Prop({
-    type: String
-  })
-  phone: string
-
-  @Prop({
-    type: String
-  })
-  website: string
-
-  @Prop({
-    type: String
-  })
-  facebook: string
-
-  @Prop({
-    type: String
-  })
-  instagram: string
-
-  @Prop({
-    type: String
-  })
-  email: string
-
-  @Prop({
-    type: String,
-    required: true
-  })
-  priceRange: PRICE_RANGE
-
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'User', default: [] })
-  followers: Types.ObjectId[]
+  social: ISocial
 
   @Prop({
     type: Number,
     required: true,
-    default: 0
+    default: VERIFICATION_STATUS.NOT_VERIFIED
+  })
+  verificationStatus: typeof VERIFICATION_STATUS
+
+  @Prop({
+    type: Number
+  })
+  price: typeof PRICE_RANGE
+
+  @Prop({
+    type: Number
   })
   followersCount: number
 
   @Prop({
-    type: [String],
-    default: []
+    type: [String]
   })
-  categories: string[]
+  categories: (typeof PLACE_TYPES)[]
 
-  @Prop({ type: [SchemaTypes.ObjectId], ref: 'User', require: true })
-  createdBy: Types.ObjectId[]
+  @Prop({
+    type: [String]
+  })
+  subCategories: (typeof PLACE_SUB_TYPES)[]
+
+  @Prop({
+    type: String
+  })
+  menu: string
+
+  @Prop({
+    type: [DrinksSchema]
+  })
+  drinks: [IDrink]
+
+  @Prop({
+    type: [DrinkBestPricesSchema]
+  })
+  bestPrice: IDrinkBestPrices
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
+  createdBy: Types.ObjectId
 }
 
 export const PlacesSchema = SchemaFactory.createForClass(Place)
+
+PlacesSchema.index({ location: '2dsphere' })

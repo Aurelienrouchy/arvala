@@ -1,8 +1,9 @@
 import { Expose, Transform, Type } from 'class-transformer'
-import { Types } from 'mongoose'
 import { AbstractEntity } from 'src/utils/BaseDBObject'
 import { GeoPointEntity } from 'src/utils/GeoPoint'
-import { PhoneType, ROLE } from './user.schema'
+import { ROLE } from './user.schema'
+import { IsOptional } from 'class-validator'
+import { IPlace, ISlug, IContacts, ISocial, IEvent } from 'src/utils/types'
 
 export class UserEntity extends AbstractEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -22,44 +23,37 @@ export class UserEntity extends AbstractEntity {
   desc: string
 
   @Expose()
-  role: ROLE
-
-  @Expose()
-  @Type(() => String)
-  places: Types.ObjectId[]
-
-  @Expose()
-  @Type(() => String)
-  followers: Types.ObjectId[]
-
-  @Expose()
   @Type(() => GeoPointEntity)
   @Transform(({ value }) => value)
   location: GeoPointEntity
 
   @Expose()
-  email: string
+  cover: string
 
   @Expose()
-  phone: PhoneType
+  address: string
 
   @Expose()
-  website: Date
+  role: ROLE
 
   @Expose()
-  instagram: Date
+  places: Pick<IPlace, 'id' | 'name' | 'address'>[]
 
   @Expose()
-  facebook: number
+  followersCount: number
+
+  @IsOptional()
+  slugs: ISlug
 
   @Expose()
-  @Type(() => String)
-  events: Types.ObjectId[]
+  contacts: IContacts
 
   @Expose()
-  @Type(() => String)
-  eventsLiked: Types.ObjectId[]
+  social: ISocial
 
   @Expose()
-  picture: string
+  events: Pick<
+    IEvent,
+    'id' | 'name' | 'place' | 'cover' | 'beginAt' | 'minPrice'
+  >[]
 }

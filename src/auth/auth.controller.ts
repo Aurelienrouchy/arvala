@@ -3,7 +3,7 @@ import { User } from 'src/user/user.schema'
 import { AuthService } from './auth.service'
 import JwtAuthenticationGuard from './jwt-authentication.guard'
 import RequestWithUser from './requestWithUser.interface'
-import { UserEntity } from '../user/user-dto'
+import { UserEntity } from '../user/user.dto'
 
 @Controller('auth')
 export class AuthController {

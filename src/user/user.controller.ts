@@ -3,23 +3,20 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
-  Query,
   Req,
   UseGuards
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { User } from './user.schema'
-import { CreateGoogleUserDto } from './create-user.dto'
 import RequestWithUser from 'src/auth/requestWithUser.interface'
 import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard'
-import { BodyWithLocation } from './type'
-import { UserEntity } from './user-dto'
+import { UserEntity } from './user.dto'
+import { ApiTags } from '@nestjs/swagger'
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -29,27 +26,38 @@ export class UserController {
     return this.userService.findOneById(id)
   }
 
+  @Get()
+  findByFilters(@Body() user: Partial<UserEntity>): Promise<UserEntity[]> {
+    return this.userService.findByFilters(user)
+  }
+
+  @Get()
+  findAll(): Promise<UserEntity[]> {
+    return this.userService.findAll()
+  }
+
   @Post()
-  create(@Body() user: CreateGoogleUserDto): Promise<UserEntity> {
+  create(@Body() user): Promise<UserEntity> {
     return this.userService.create(user)
   }
 
-  @Post('update-location')
-  @UseGuards(JwtAuthenticationGuard)
-  updateLocation(
-    @Body() body: BodyWithLocation,
-    @Req() request: RequestWithUser
-  ): Promise<User> {
-    return this.userService.updateLocation(request.user.id, body.location)
-  }
+  // @Post('update-location')
+  // @UseGuards(JwtAuthenticationGuard)
+  // updateLocation(
+  //   @Body() body: BodyWithLocation,
+  //   @Req() request: RequestWithUser
+  // ): Promise<User> {
+  //   return this.userService.updateLocation(request.user.id, body.location)
+  // }
 
-  @Put()
-  @UseGuards(JwtAuthenticationGuard)
+  @Put(':id')
+  // @UseGuards(JwtAuthenticationGuard)
   update(
-    @Body() user: Partial<User>,
-    @Req() request: RequestWithUser
+    @Param('id') id: string,
+    @Body() user: Partial<User>
+    // @Req() request: RequestWithUser
   ): Promise<UserEntity> {
-    return this.userService.updateOneById(request.user.id, user)
+    return this.userService.updateOneById(id, user)
   }
 
   @Delete(':id')

@@ -10,11 +10,9 @@ import * as jwt from 'jsonwebtoken'
 import { Model } from 'mongoose'
 import { UserDocument, User, PROVIDER_NAME } from 'src/user/user.schema'
 import { InjectModel } from '@nestjs/mongoose'
-import * as bcrypt from 'bcrypt'
 import { RefreshToken, RefreshTokenDocument } from './auth.schema'
-import { GeoPoint } from 'src/utils/GeoPoint'
 import { UserService } from 'src/user/user.service'
-import { UserEntity } from '../user/user-dto'
+import { UserEntity } from '../user/user.dto'
 import { plainToClass } from 'class-transformer'
 
 @Injectable()
@@ -85,17 +83,17 @@ export class AuthService {
       providerId: googleUser.sub
     })
 
-    if (!user) {
-      const newUser = new User({
-        name: googleUser.name,
-        providerId: googleUser.sub,
-        providerName: PROVIDER_NAME.GOOGLE,
-        email: googleUser.email,
-        picture: googleUser.picture
-      })
+    // if (!user) {
+    //   const newUser = new User({
+    //     name: googleUser.name,
+    //     providerId: googleUser.sub,
+    //     providerName: PROVIDER_NAME.GOOGLE,
+    //     email: googleUser.email,
+    //     logo: googleUser.picture
+    //   })
 
-      return await new this.userRepository(newUser).save()
-    }
+    //   return await new this.userRepository(newUser).save()
+    // }
 
     return user
   }

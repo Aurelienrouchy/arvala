@@ -1,89 +1,132 @@
 import { Expose, Transform, Type } from 'class-transformer'
-import {
-  IsBoolean,
-  IsDateString,
-  IsDefined,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength
-} from 'class-validator'
-import { AbstractEntity } from 'src/utils/BaseDBObject'
-import { GeoPoint, GeoPointEntity } from 'src/utils/GeoPoint'
-
-export class UpdateEventDto {
-  id: string
-  name: string
-  birthDate: Date
-  gender: number
-  interestedIn: number
-}
+import { IsDefined, IsOptional } from 'class-validator'
+import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
+import { GeoPointEntity } from 'src/utils/GeoPoint'
+import { IArtist, IGeoPoint, ISlug, PartialPlace } from 'src/utils/types'
 
 export class CreateEventDto {
   @IsDefined()
-  @IsString()
-  @MinLength(1, {
-    message: 'La longueur du titre doit être superieur ou égale à 1 caractère.'
-  })
-  @MaxLength(255, {
-    message:
-      'La longueur du titre doit être inférieure ou égale à 255 caractères.'
-  })
   name: string
 
-  @IsDefined()
-  @IsString()
-  @MinLength(1, {
-    message:
-      'La longueur de la description doit être superieur ou égale à 1 caractères.'
-  })
-  @MaxLength(5000, {
-    message:
-      'La longueur de la description doit être inférieure ou égale à 5000 caractères.'
-  })
-  @IsDefined()
+  @IsOptional()
   desc: string
 
   @IsOptional()
-  photo?: string[]
+  cover: string
 
   @IsDefined()
-  location: GeoPoint
+  location: IGeoPoint
+
+  @IsOptional()
+  photos: string[]
 
   @IsDefined()
-  @IsString()
-  image: string
-
-  @IsDefined()
-  @IsDateString()
   beginAt: Date
 
-  @IsDefined()
-  @IsDateString()
+  @IsOptional()
   endAt: Date
 
-  @IsDefined()
-  @IsNumber()
-  price: number
+  @IsOptional()
+  lineup: [IArtist]
+
+  @IsOptional()
+  minPrice: number
+
+  @IsOptional()
+  maxPrice: number
+
+  @IsOptional()
+  followersCount: number
 
   @IsDefined()
-  @IsString()
-  placeId: string
+  slugs: ISlug
+
+  @IsDefined()
+  place: PartialPlace
 
   @IsDefined()
   categories: string[]
 
-  @IsDefined()
-  @IsBoolean()
+  @IsOptional()
+  subCategories: string[]
+
+  @IsOptional()
   active: boolean
 
-  @IsDefined()
-  @IsBoolean()
+  @IsOptional()
   private: boolean
+
+  @IsDefined()
+  createdBy: string
 }
 
-export class EventEntity extends AbstractEntity {
+export class EventEntity extends BaseDBObject {
+  constructor(partial: Partial<EventEntity>) {
+    super()
+    Object.assign(this, partial)
+  }
+
+  @Expose()
+  name: string
+
+  @Expose()
+  desc: string
+
+  @Expose()
+  cover: string
+
+  @Expose()
+  @Type(() => GeoPointEntity)
+  @Transform(({ value }) => value.coordinates)
+  location: IGeoPoint
+
+  @Expose()
+  photos: string[]
+
+  @Expose()
+  beginAt: Date
+
+  @Expose()
+  endAt: Date
+
+  @Expose()
+  lineup: [IArtist]
+
+  @Expose()
+  minPrice: number
+
+  @Expose()
+  maxPrice: number
+
+  @Expose()
+  distance: number
+
+  @Expose()
+  followersCount: number
+
+  @Expose()
+  slugs: ISlug
+
+  @Expose()
+  place: PartialPlace
+
+  @Expose()
+  categories: string[]
+
+  @Expose()
+  subCategories: string[]
+
+  @Expose()
+  active: boolean
+
+  @Expose()
+  private: boolean
+
+  @Expose()
+  createdBy: string
+}
+
+export class EventEntityMinimize extends AbstractEntity {
   constructor(partial: Partial<EventEntity>) {
     super()
     Object.assign(this, partial)
@@ -97,49 +140,22 @@ export class EventEntity extends AbstractEntity {
   name: string
 
   @Expose()
-  desc: string
+  minPrice: number
 
   @Expose()
-  @Type(() => GeoPointEntity)
-  @Transform(({ value }) => value)
-  location: GeoPointEntity
-
-  @Expose()
-  image: string
-
-  @Expose()
-  photos: string[]
-
-  @Expose()
-  beginAt: Date
-
-  @Expose()
-  endAt: Date
-
-  @Expose()
-  price: number
+  cover: string
 
   @Expose()
   distance: number
 
   @Expose()
-  followers: string[]
+  @Type(() => GeoPointEntity)
+  @Transform(({ value }) => value.coordinates)
+  location: GeoPointEntity
 
   @Expose()
-  followersCount: number
+  beginAt: Date
 
   @Expose()
-  placeId: string
-
-  @Expose()
-  categories: string[]
-
-  @Expose()
-  active: boolean
-
-  @Expose()
-  private: boolean
-
-  @Expose()
-  createdBy: string
+  place: PartialPlace
 }

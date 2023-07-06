@@ -1,9 +1,15 @@
 import { Model } from 'mongoose'
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable
+} from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Place, PlaceDocument } from './place.schema'
-import { CreatePlaceDto, PlaceEntity } from './place.dto'
+import { CreatePlaceDto, PlaceEntity, PlaceEntityMinimize } from './place.dto'
 import { plainToClass } from 'class-transformer'
+import { PLACE_TYPES } from 'src/utils/types'
 
 @Injectable({})
 export class PlacesService {
@@ -31,22 +37,118 @@ export class PlacesService {
   }
 
   async findNear(
+    lng: number,
+    lat: number,
     distance: number,
-    coordinates: number[]
-  ): Promise<PlaceEntity[]> {
+    types: (typeof PLACE_TYPES)[keyof typeof PLACE_TYPES][],
+    limit = 10
+  ): Promise<PlaceEntityMinimize[]> {
+    if (limit <= 0) {
+      throw new BadRequestException('Limit must be a positive number')
+    }
+    if (lat < -90 || lat > 90) {
+      throw new BadRequestException('Latitude must be between -90 and 90')
+    }
+    if (lng < -180 || lng > 180) {
+      throw new BadRequestException('Longitude must be between -180 and 180')
+    }
     const places = await this.placesRepository
-      .find({
-        location: {
-          $near: {
-            $maxDistance: distance,
-            $geometry: {
+      .aggregate([
+        {
+          $geoNear: {
+            near: {
               type: 'Point',
-              coordinates: coordinates
+              coordinates: [lng, lat]
+            },
+            distanceField: 'distance',
+            maxDistance: distance
+          }
+        },
+        {
+          $match: {
+            categories: {
+              $in: types
+            },
+            location: { $ne: null }
+          }
+        }
+      ])
+      .sort({ distance: 1 })
+      .limit(20)
+      .exec()
+
+    return places.map((place) =>
+      plainToClass(PlaceEntityMinimize, place, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
+  }
+
+  async findClubs(
+    latitude: number,
+    longitude: number,
+    distance: number,
+    limit = 10
+  ): Promise<PlaceEntity[]> {
+    if (limit <= 0) {
+      throw new BadRequestException('Limit must be a positive number')
+    }
+    if (latitude < -90 || latitude > 90) {
+      throw new BadRequestException('Latitude must be between -90 and 90')
+    }
+    if (longitude < -180 || longitude > 180) {
+      throw new BadRequestException('Longitude must be between -180 and 180')
+    }
+    const places = await this.placesRepository
+      .aggregate([
+        {
+          $match: {
+            categories: {
+              $in: [PLACE_TYPES.BEER_GARDEN]
             }
           }
         }
-      })
+      ])
+      .sort({ distance: 1 })
+      // .limit(20)
       .exec()
+
+    return places.map((place) =>
+      plainToClass(PlaceEntity, place, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
+  }
+
+  async findBars(
+    latitude: number,
+    longitude: number,
+    distance: number,
+    limit = 10
+  ): Promise<PlaceEntity[]> {
+    if (limit <= 0) {
+      throw new BadRequestException('Limit must be a positive number')
+    }
+    if (latitude < -90 || latitude > 90) {
+      throw new BadRequestException('Latitude must be between -90 and 90')
+    }
+    if (longitude < -180 || longitude > 180) {
+      throw new BadRequestException('Longitude must be between -180 and 180')
+    }
+    const places = await this.placesRepository
+      .aggregate([
+        {
+          $match: {
+            categories: PLACE_TYPES
+          }
+        }
+      ])
+      .sort({ distance: 1 })
+      // .limit(20)
+      .exec()
+
     return places.map((place) =>
       plainToClass(PlaceEntity, place, {
         excludeExtraneousValues: true,
@@ -56,15 +158,50 @@ export class PlacesService {
   }
 
   async findOneById(id: string): Promise<PlaceEntity> {
-    const place = await this.placesRepository.findById(id).exec()
-    if (place) {
-      return plainToClass(PlaceEntity, place, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      })
+    try {
+      const place = await this.placesRepository.findById(id).exec()
+      if (place) {
+        return plainToClass(PlaceEntity, place, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      }
+    } catch (err) {
+      console.log(err)
     }
 
     throw new HttpException(`Place ${id} not found`, HttpStatus.NOT_FOUND)
+  }
+
+  async find(): Promise<PlaceEntity[]> {
+    const places = await this.placesRepository.find({}).exec()
+    if (places) {
+      return places.map((place) =>
+        plainToClass(PlaceEntity, place, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      )
+    }
+
+    throw new HttpException(`Places not found`, HttpStatus.NOT_FOUND)
+  }
+
+  async findByFilters(
+    filters: Partial<PlaceEntity> = {}
+  ): Promise<PlaceEntity[]> {
+    try {
+      const events = await this.placesRepository.find(filters).exec()
+
+      return events.map((event) =>
+        plainToClass(PlaceEntity, event, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      )
+    } catch (error) {
+      throw new HttpException(`Events not found`, HttpStatus.NOT_FOUND)
+    }
   }
 
   async findPlacesByName(name: string): Promise<PlaceEntity[]> {
@@ -97,18 +234,16 @@ export class PlacesService {
     throw new HttpException(`Place ${id} not found`, HttpStatus.NOT_FOUND)
   }
 
-  async deleteOneById(id: string): Promise<PlaceEntity> {
-    const deletedPlace = await this.placesRepository
-      .findByIdAndRemove(id)
-      .exec()
+  async deleteOneById(id: string) {
+    await this.placesRepository.findByIdAndRemove(id)
 
-    if (deletedPlace) {
-      return plainToClass(PlaceEntity, deletedPlace, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      })
-    }
+    // if (deletedPlace) {
+    //   return plainToClass(PlaceEntity, deletedPlace, {
+    //     excludeExtraneousValues: true,
+    //     enableImplicitConversion: true
+    //   })
+    // }
 
-    throw new HttpException(`Place ${id} not found`, HttpStatus.NOT_FOUND)
+    // throw new HttpException(`Place ${id} not found`, HttpStatus.NOT_FOUND)
   }
 }
