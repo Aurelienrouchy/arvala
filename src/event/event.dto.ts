@@ -2,7 +2,13 @@ import { Expose, Transform, Type } from 'class-transformer'
 import { IsDefined, IsOptional } from 'class-validator'
 import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
 import { GeoPointEntity } from 'src/utils/GeoPoint'
-import { IArtist, IGeoPoint, ISlug, PartialPlace } from 'src/utils/types'
+import {
+  ArtistEntity,
+  IArtist,
+  IGeoPoint,
+  ISlug,
+  PartialPlace
+} from 'src/utils/types'
 
 export class CreateEventDto {
   @IsDefined()
@@ -77,8 +83,7 @@ export class EventEntity extends BaseDBObject {
 
   @Expose()
   @Type(() => GeoPointEntity)
-  @Transform(({ value }) => value.coordinates)
-  location: IGeoPoint
+  location: GeoPointEntity
 
   @Expose()
   photos: string[]
@@ -90,6 +95,7 @@ export class EventEntity extends BaseDBObject {
   endAt: Date
 
   @Expose()
+  @Type(() => ArtistEntity)
   lineup: [IArtist]
 
   @Expose()
@@ -108,6 +114,7 @@ export class EventEntity extends BaseDBObject {
   slugs: ISlug
 
   @Expose()
+  @Type(() => PartialPlaceEntity)
   place: PartialPlace
 
   @Expose()
@@ -126,6 +133,14 @@ export class EventEntity extends BaseDBObject {
   createdBy: string
 }
 
+export class PartialPlaceEntity {
+  @Expose()
+  address: string
+
+  @Expose()
+  name: string
+}
+
 export class EventEntityMinimize extends AbstractEntity {
   constructor(partial: Partial<EventEntity>) {
     super()
@@ -138,6 +153,9 @@ export class EventEntityMinimize extends AbstractEntity {
 
   @Expose()
   name: string
+
+  @Expose()
+  desc: string
 
   @Expose()
   minPrice: number
@@ -157,5 +175,6 @@ export class EventEntityMinimize extends AbstractEntity {
   beginAt: Date
 
   @Expose()
+  @Type(() => PartialPlaceEntity)
   place: PartialPlace
 }

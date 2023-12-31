@@ -1,17 +1,21 @@
 import { Schema } from 'mongoose'
 import {
+  BarType,
   IArtist,
   IContacts,
   IDrink,
   IDrinkBestPrices,
   IGeoPoint,
   IHours,
+  IHoursFormatted,
   ISlug,
   ISocial,
   IStartEnd,
   PartialEvent,
   PartialPlace
 } from './types'
+import { AbstractEntity } from './BaseDBObject'
+import { Expose } from 'class-transformer'
 
 export const ArtistSchema = new Schema<IArtist>(
   {
@@ -44,13 +48,26 @@ export const StartEndSchema = new Schema<IStartEnd>(
 
 export const HourSchema = new Schema<IHours>(
   {
-    Mon: [{ type: StartEndSchema, default: null }],
-    Tue: [{ type: StartEndSchema, default: null }],
-    Wed: [{ type: StartEndSchema, default: null }],
-    Thu: [{ type: StartEndSchema, default: null }],
-    Fri: [{ type: StartEndSchema, default: null }],
-    Sat: [{ type: StartEndSchema, default: null }],
-    Sun: [{ type: StartEndSchema, default: null }]
+    mon: [{ type: StartEndSchema, default: null }],
+    tue: [{ type: StartEndSchema, default: null }],
+    wed: [{ type: StartEndSchema, default: null }],
+    thu: [{ type: StartEndSchema, default: null }],
+    fri: [{ type: StartEndSchema, default: null }],
+    sat: [{ type: StartEndSchema, default: null }],
+    sun: [{ type: StartEndSchema, default: null }]
+  },
+  { _id: false }
+)
+
+export const HourFormattedSchema = new Schema<IHoursFormatted>(
+  {
+    mon: { type: String, default: null },
+    tue: { type: String, default: null },
+    wed: { type: String, default: null },
+    thu: { type: String, default: null },
+    fri: { type: String, default: null },
+    sat: { type: String, default: null },
+    sun: { type: String, default: null }
   },
   { _id: false }
 )
@@ -97,6 +114,15 @@ export const DrinkBestPricesSchema = new Schema<IDrinkBestPrices>(
     cocktail: { type: Number, default: null },
     wine: { type: Number, default: null },
     soft: { type: Number, default: null }
+  },
+  { _id: false }
+)
+
+export const BarTypeSchema = new Schema<BarType>(
+  {
+    name: { type: String, default: null },
+    slug: { type: String, default: null },
+    icon: { type: String, default: null }
   },
   { _id: false }
 )

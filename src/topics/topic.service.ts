@@ -2,7 +2,7 @@ import { Model } from 'mongoose'
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Topic, TopicDocument } from './topic.schema'
-import { plainToClass } from 'class-transformer'
+import { plainToClass, plainToInstance } from 'class-transformer'
 import { CreateTopicDto, TopicEntity, TopicEntityMinimize } from './topic.dto'
 
 @Injectable({})
@@ -12,20 +12,24 @@ export class TopicsService {
   ) {}
 
   async create(topicDto: CreateTopicDto): Promise<TopicEntity> {
-    const isExist = await this.topicsRepository
-      .findOne({ name: topicDto.name })
-      .exec()
+    try {
+      const isExist = await this.topicsRepository
+        .findOne({ name: topicDto.name })
+        .exec()
 
-    if (isExist) {
-      throw new HttpException(`Topic already exist`, HttpStatus.CONFLICT)
+      if (isExist) {
+        throw new HttpException(`Topic already exist`, HttpStatus.CONFLICT)
+      }
+
+      const savedTopic = await new this.topicsRepository(topicDto).save()
+
+      return plainToClass(TopicEntity, savedTopic, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
-
-    const savedTopic = await new this.topicsRepository(topicDto).save()
-
-    return plainToClass(TopicEntity, savedTopic, {
-      excludeExtraneousValues: true,
-      enableImplicitConversion: true
-    })
   }
 
   async findBarTopics(): Promise<TopicEntityMinimize[]> {
@@ -78,12 +82,14 @@ export class TopicsService {
   }
 
   async findOneById(id: string): Promise<TopicEntity> {
-    const topic = await this.topicsRepository.findById(id).exec()
+    const topic = await (
+      await this.topicsRepository.findById(id).exec()
+    ).populate('content')
 
     if (topic) {
-      return plainToClass(TopicEntity, topic, {
+      return plainToInstance(TopicEntity, topic, {
         excludeExtraneousValues: true,
-        enableImplicitConversion: false
+        enableImplicitConversion: true
       })
     }
 
@@ -94,32 +100,40 @@ export class TopicsService {
     id: string,
     topic: Partial<TopicEntity>
   ): Promise<TopicEntity> {
-    const updateTopic = await this.topicsRepository
-      .findByIdAndUpdate(id, topic, { new: true })
-      .exec()
+    try {
+      const updateTopic = await this.topicsRepository
+        .findByIdAndUpdate(id, topic, { new: true })
+        .exec()
 
-    if (updateTopic) {
-      return plainToClass(TopicEntity, updateTopic, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      })
+      if (updateTopic) {
+        return plainToClass(TopicEntity, updateTopic, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      }
+
+      throw new HttpException(`Topic ${id} not found`, HttpStatus.NOT_FOUND)
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
-
-    throw new HttpException(`Topic ${id} not found`, HttpStatus.NOT_FOUND)
   }
 
   async deleteOneById(id: string): Promise<TopicEntity> {
-    const deletedTopic = await this.topicsRepository
-      .findByIdAndRemove(id)
-      .exec()
+    try {
+      const deletedTopic = await this.topicsRepository
+        .findByIdAndRemove(id)
+        .exec()
 
-    if (deletedTopic) {
-      return plainToClass(TopicEntity, deletedTopic, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      })
+      if (deletedTopic) {
+        return plainToClass(TopicEntity, deletedTopic, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      }
+
+      throw new HttpException(`Topic ${id} not found`, HttpStatus.NOT_FOUND)
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
-
-    throw new HttpException(`Topic ${id} not found`, HttpStatus.NOT_FOUND)
   }
 }

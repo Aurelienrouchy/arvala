@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 
 export const EVENT_TYPES = {
   LIVE_MUSIC: 'LIVE_MUSIC',
@@ -307,6 +307,12 @@ export interface IGeoPoint {
   coordinates: [number, number]
 }
 
+export class ArtistEntity {
+  about: string | null
+  image: string | null
+  name: string | null
+}
+
 export interface IArtist {
   about: string | null
   image: string | null
@@ -319,30 +325,82 @@ export interface IStartEnd {
 }
 
 export interface IHours {
-  Mon: [IStartEnd] | null
-  Tue: [IStartEnd] | null
-  Wed: [IStartEnd] | null
-  Thu: [IStartEnd] | null
-  Fri: [IStartEnd] | null
-  Sat: [IStartEnd] | null
-  Sun: [IStartEnd] | null
+  mon: [IStartEnd] | null
+  tue: [IStartEnd] | null
+  wed: [IStartEnd] | null
+  thu: [IStartEnd] | null
+  fri: [IStartEnd] | null
+  sat: [IStartEnd] | null
+  sun: [IStartEnd] | null
+}
+export interface IHoursFormatted {
+  mon: string | null
+  tue: string | null
+  wed: string | null
+  thu: string | null
+  fri: string | null
+  sat: string | null
+  sun: string | null
+}
+
+class StartEndSchema {
+  @Expose()
+  start: number
+
+  @Expose()
+  end: number
 }
 
 export class HoursClass {
   @Expose()
-  Mon: [IStartEnd]
+  @Type(() => StartEndSchema)
+  mon: [IStartEnd]
+
   @Expose()
-  Tue: [IStartEnd]
+  @Type(() => StartEndSchema)
+  tue: [IStartEnd]
+
   @Expose()
-  Wed: [IStartEnd]
+  @Type(() => StartEndSchema)
+  wed: [IStartEnd]
+
   @Expose()
-  Thu: [IStartEnd]
+  @Type(() => StartEndSchema)
+  thu: [IStartEnd]
+
   @Expose()
-  Fri: [IStartEnd]
+  @Type(() => StartEndSchema)
+  fri: [IStartEnd]
+
   @Expose()
-  Sat: [IStartEnd]
+  @Type(() => StartEndSchema)
+  sat: [IStartEnd]
+
   @Expose()
-  Sun: [IStartEnd]
+  @Type(() => StartEndSchema)
+  sun: [IStartEnd]
+}
+export class HoursFormattedClass {
+  @Expose()
+  mon: string
+
+  @Expose()
+  tue: string
+
+  @Expose()
+  wed: string
+
+  @Expose()
+  thu: string
+
+  @Expose()
+  fri: string
+
+  @Expose()
+  sat: string
+
+  @Expose()
+  sun: string
 }
 
 export interface IContacts {
@@ -447,6 +505,12 @@ export class DrinkClass {
   happyPrice: string
 }
 
+export type BarType = {
+  slug: string
+  name: string
+  icon: string
+}
+
 export interface IDrinkBestPrices {
   beer: number
   cocktail: number
@@ -470,6 +534,7 @@ export interface IPlace {
   verificationStatus: typeof VERIFICATION_STATUS
   price: typeof PRICE_RANGE
   followersCount: number
+  event: PartialEvent[]
   categories: (typeof PLACE_TYPES)[]
   subCategories: (typeof PLACE_SUB_TYPES)[]
   createdBy: IUser
@@ -486,6 +551,8 @@ export interface IEvent {
   id: string
   name: string
   desc: string
+  descEN: string
+  descEmbedding: number[]
   location: IGeoPoint
   cover: string
   photos: string[]

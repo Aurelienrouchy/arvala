@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { TopicsService } from './topic.service'
 import { ApiTags } from '@nestjs/swagger'
 import { TopicEntity, TopicEntityMinimize } from './topic.dto'
+import { PlaceEntityMinimize } from 'src/place/place.dto'
 
 @ApiTags('topic')
 @Controller('topic')

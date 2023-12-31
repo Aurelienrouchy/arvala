@@ -1,19 +1,39 @@
-// auth-response.dto.ts
-export class AuthResponseDto {
-  accessToken: string
-  refreshToken: string
-}
-
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { OAuth2Client } from 'google-auth-library'
+import fs from 'fs'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UseFilters
+} from '@nestjs/common'
+import { OAuth2Client, GoogleAuth } from 'google-auth-library'
 import * as jwt from 'jsonwebtoken'
 import { Model } from 'mongoose'
-import { UserDocument, User, PROVIDER_NAME } from 'src/user/user.schema'
+import { UserDocument, User } from 'src/user/user.schema'
 import { InjectModel } from '@nestjs/mongoose'
 import { RefreshToken, RefreshTokenDocument } from './auth.schema'
 import { UserService } from 'src/user/user.service'
-import { UserEntity } from '../user/user.dto'
+import { ISlug } from 'src/utils/types'
+import { UserEntity } from 'src/user/user.dto'
 import { plainToClass } from 'class-transformer'
+import AppleAuth from 'apple-auth'
+import path from 'path'
+
+const appleKey = fs
+  .readFileSync(path.join(process.cwd(), 'src/auth/keys/AuthKey_MZRXMPCH56.p8'))
+  .toString()
+// new GoogleAuth({})
+
+const auth = new AppleAuth(
+  {
+    client_id: 'com.aurelienrouchy.evenly',
+    team_id: 'B6D5JY9LKV',
+    redirect_uri: 'http://localhost:3000/auth/apple/callback',
+    key_id: 'MZRXMPCH56',
+    scope: 'name email'
+  },
+  appleKey,
+  'text'
+)
 
 @Injectable()
 export class AuthService {
@@ -32,37 +52,43 @@ export class AuthService {
     )
   }
 
-  // Verify Google access token and return user information
   async googleAuth(
-    googleToken: string
+    idToken: string
   ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
-    // Verify Google access token
-    const ticket = await this.googleClient.verifyIdToken({
-      idToken: googleToken,
-      audience:
-        '766840691282-pgl5d1dasfr07c8bjocnqr3r9fqju010.apps.googleusercontent.com'
-    })
+    try {
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken
+      })
 
-    const googleUser = ticket.getPayload()
+      const googleUser = ticket.getPayload()
 
-    if (!googleUser) {
-      throw new NotFoundException('Bad google token')
+      if (!googleUser) {
+        throw new NotFoundException('Bad google token')
+      }
+
+      const user = await this.findOrCreateUserGoogleUser(googleUser)
+
+      const tokens = this.getTokens(user._id.toString())
+
+      await this.setCurrentRefreshToken(
+        tokens.refreshToken,
+        user._id.toString()
+      )
+
+      return {
+        user: plainToClass(UserEntity, user, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        }),
+        ...tokens
+      }
+    } catch (error) {
+      throw new BadRequestException('Failed to verify token')
     }
+  }
 
-    // Retrieve or create user in database
-    const user = await this.findOrCreateUserGoogleUser(googleUser)
-
-    const tokens = this.getTokens(user._id.toString())
-
-    await this.setCurrentRefreshToken(tokens.refreshToken, user._id.toString())
-
-    return {
-      user: plainToClass(UserEntity, user, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      }),
-      ...tokens
-    }
+  async appleAuth(token: string) {
+    console.log({ token })
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
@@ -80,20 +106,29 @@ export class AuthService {
   async findOrCreateUserGoogleUser(googleUser: any): Promise<User> {
     // Check if user with Google ID exists in database
     const user = await this.userRepository.findOne({
-      providerId: googleUser.sub
+      'slugs.google': googleUser.sub
     })
 
-    // if (!user) {
-    //   const newUser = new User({
-    //     name: googleUser.name,
-    //     providerId: googleUser.sub,
-    //     providerName: PROVIDER_NAME.GOOGLE,
-    //     email: googleUser.email,
-    //     logo: googleUser.picture
-    //   })
+    if (!user) {
+      const newUser = new User({
+        name: googleUser.name,
+        slugs: {
+          shotgun: null,
+          dice: null,
+          facebook: null,
+          billetreduc: null,
+          schlouk: null,
+          google: googleUser.sub
+        },
+        contacts: {
+          phone: null,
+          email: googleUser.email
+        },
+        cover: googleUser.picture
+      })
 
-    //   return await new this.userRepository(newUser).save()
-    // }
+      return await new this.userRepository(newUser).save()
+    }
 
     return user
   }

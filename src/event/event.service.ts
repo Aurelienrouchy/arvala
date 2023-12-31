@@ -11,11 +11,13 @@ import { CreateEventDto, EventEntity, EventEntityMinimize } from './event.dto'
 import { User, UserDocument } from 'src/user/user.schema'
 import { plainToClass } from 'class-transformer'
 import { UserEntity } from '../user/user.dto'
-
-@Injectable({})
+import { Place, PlaceDocument } from 'src/place/place.schema'
+import { PlaceEntityMinimize } from 'src/place/place.dto'
+@Injectable()
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventsRepository: Model<EventDocument>,
+    @InjectModel(Place.name) private placesRepository: Model<PlaceDocument>,
     @InjectModel(User.name) private userRepository: Model<UserDocument>
   ) {}
 
@@ -25,7 +27,10 @@ export class EventsService {
       .exec()
 
     if (isExist) {
-      throw new HttpException(`Event already exist`, HttpStatus.CONFLICT)
+      throw new HttpException(
+        `Event - EXISTE: ${eventDto.name}`,
+        HttpStatus.CONFLICT
+      )
     }
 
     const savedEvent = await new this.eventsRepository(eventDto).save()
@@ -156,14 +161,70 @@ export class EventsService {
           maxDistance
         }
       },
+      { $sort: { distance: 1 } },
+      { $limit: limit }
+    ])
+
+    return events.map((event) =>
+      plainToClass(EventEntityMinimize, event, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
+  }
+
+  async getConcertsEvents(
+    coordinates: [number, number],
+    start: string,
+    end: string,
+    types: string,
+    limit = 1000,
+    maxDistance = 10000
+  ): Promise<EventEntityMinimize[]> {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const query = {
+      categories: 'concert'
+    }
+
+    if (start) {
+      query['beginAt'] = {
+        ...(query['beginAt'] || {}),
+        $gte: new Date(start)
+      }
+    }
+
+    if (end) {
+      query['beginAt'] = {
+        ...(query['beginAt'] || {}),
+        $lt: new Date(end)
+      }
+    }
+
+    if (types) {
+      query['subCategories'] = { $in: types.split(',') }
+    }
+
+    console.log(query)
+
+    const events = await this.eventsRepository.aggregate([
       {
-        $match: {
-          location: { $ne: null }
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates
+          },
+          query,
+          distanceField: 'distance',
+          maxDistance
         }
       },
       { $sort: { distance: 1 } },
       { $limit: limit }
     ])
+
+    console.log(events.length)
 
     return events.map((event) =>
       plainToClass(EventEntityMinimize, event, {
@@ -206,12 +267,7 @@ export class EventsService {
             }
           }
         },
-        {
-          $match: {
-            location: { $ne: null }
-          }
-        },
-        { $sort: { shotgunFavCount: -1 } },
+        { $sort: { followersCount: -1 } },
         { $limit: limit }
       ])
 
@@ -223,6 +279,49 @@ export class EventsService {
       )
     } catch (error) {
       throw new BadRequestException(error.message)
+    }
+  }
+
+  async searchEventsAndPlaces(
+    search: string,
+    start: Date,
+    end: Date
+  ): Promise<{ events: EventEntityMinimize[]; places: PlaceEntityMinimize[] }> {
+    const places = await this.placesRepository
+      .find({
+        name: {
+          $regex: search,
+          $options: 'i'
+        }
+      })
+      .limit(10)
+
+    const events = await this.eventsRepository
+      .find({
+        name: {
+          $regex: search,
+          $options: 'i'
+        },
+        beginAt: {
+          $gte: start,
+          $lt: end
+        }
+      })
+      .limit(10)
+
+    return {
+      events: events.map((event) =>
+        plainToClass(EventEntityMinimize, event, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      ),
+      places: places.map((event) =>
+        plainToClass(PlaceEntityMinimize, event, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+        })
+      )
     }
   }
 
@@ -252,11 +351,6 @@ export class EventsService {
               },
               distanceField: 'distance',
               maxDistance: 10000
-            }
-          },
-          {
-            $match: {
-              location: { $ne: null }
             }
           }
         ])
@@ -362,6 +456,8 @@ export class EventsService {
 
   async findOneById(id: string): Promise<EventEntity> {
     const event = await this.eventsRepository.findById(id).exec()
+
+    console.log(event)
     if (event) {
       return plainToClass(EventEntity, event, {
         excludeExtraneousValues: true,
@@ -388,6 +484,38 @@ export class EventsService {
     }
 
     throw new HttpException(`Event ${id} not found`, HttpStatus.NOT_FOUND)
+  }
+
+  async deleteEventsInPlace() {
+    const places = await this.placesRepository.find({ name: 'Inconnu' })
+    for (const place of places) {
+      await this.placesRepository.findByIdAndRemove(place._id)
+      // for (const event of place.events) {
+      //   const isExist = await this.eventsRepository.findOne({
+      //     name: event.name
+      //   })
+
+      //   if (!isExist) {
+      //     await this.placesRepository.findOneAndUpdate(
+      //       { _id: place._id },
+      //       {
+      //         $pull: { events: { name: event.name } }
+      //       },
+      //       { upsert: true }
+      //     )
+      //   }
+      // }
+      try {
+      } catch (error) {
+        throw new HttpException(
+          {
+            message: `Error deleted`,
+            error
+          },
+          HttpStatus.BAD_REQUEST
+        )
+      }
+    }
   }
 
   async deleteOneById(id: string): Promise<Event> {

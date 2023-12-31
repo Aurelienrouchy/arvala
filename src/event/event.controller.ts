@@ -16,6 +16,7 @@ import { EventEntity, EventEntityMinimize } from './event.dto'
 import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard'
 import RequestWithUser from 'src/auth/requestWithUser.interface'
 import { ApiTags } from '@nestjs/swagger'
+import { PlaceEntityMinimize } from 'src/place/place.dto'
 @ApiTags('event')
 @Controller('event')
 export class EventsController {
@@ -61,6 +62,18 @@ export class EventsController {
     return this.eventsService.getDailyEvents(distance, [lat, lng], limit)
   }
 
+  @Get('concerts')
+  getConcertsEvents(
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+    @Query('types') types?: string,
+    @Query('start') start?: string,
+    @Query('end') end?: string
+  ): Promise<EventEntityMinimize[]> {
+    console.log(start, end, types)
+    return this.eventsService.getConcertsEvents([lat, lng], start, end, types)
+  }
+
   @Get('weekly')
   getWeeklyEvents(
     @Query('lat', ParseFloatPipe) lat: number,
@@ -70,8 +83,21 @@ export class EventsController {
   ): Promise<EventEntityMinimize[]> {
     return this.eventsService.getWeeklyEvents(distance, [lat, lng], limit)
   }
+  @Get('search')
+  search(
+    @Query('q') q: string,
+    @Query('start') start: Date,
+    @Query('end') end: Date
+  ): Promise<{ places: PlaceEntityMinimize[]; events: EventEntityMinimize[] }> {
+    return this.eventsService.searchEventsAndPlaces(q, start, end)
+  }
 
-  @Get()
+  @Get('filter')
+  findByFilters(@Body() filters: Partial<EventEntity>): Promise<EventEntity[]> {
+    return this.eventsService.findByFilters(filters)
+  }
+
+  @Get('name')
   findByName(@Query('name') name: string): Promise<EventEntityMinimize[]> {
     return this.eventsService.getByName(name)
   }
@@ -82,13 +108,8 @@ export class EventsController {
   }
 
   @Get()
-  findByFilters(@Body() filters: Partial<EventEntity>): Promise<EventEntity[]> {
-    return this.eventsService.findByFilters(filters)
-  }
-
-  @Get()
-  findAllPlaces(): Promise<EventEntity[]> {
-    return this.eventsService.findAll()
+  findAllPlaces() {
+    return this.eventsService.deleteEventsInPlace()
   }
 
   @Post()

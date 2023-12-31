@@ -1,9 +1,19 @@
-import { Controller, Get, Post, UseGuards, Req, Body } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  UseFilters
+} from '@nestjs/common'
 import { User } from 'src/user/user.schema'
 import { AuthService } from './auth.service'
 import JwtAuthenticationGuard from './jwt-authentication.guard'
 import RequestWithUser from './requestWithUser.interface'
 import { UserEntity } from '../user/user.dto'
+import { TokenVerificationDto } from './auth.dto'
+import { AppleOAuthGuard } from './strategies/apple.strategy'
 
 @Controller('auth')
 export class AuthController {
@@ -12,10 +22,25 @@ export class AuthController {
   ) {}
 
   @Post('google')
-  async googleAuth(
-    @Body('token') token: string
-  ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
-    return await this.authService.googleAuth(token)
+  async googleAuth(@Body() body: { token: string }) {
+    return this.authService.googleAuth(body.token)
+  }
+
+  @Post('apple')
+  @UseGuards(AppleOAuthGuard)
+  async appleLogin(@Body() body: { token: string }) {
+    try {
+      return await this.authService.appleAuth(body.token)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  @Post('apple/callback')
+  @UseGuards(AppleOAuthGuard)
+  async appleCallback(@Req() req) {
+    console.log('coucou')
+    return req.user
   }
 
   @Get('login')

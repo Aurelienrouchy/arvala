@@ -1,0 +1,121 @@
+Date : 2024-01-04 17:28:32
+Directory : /Users/aurelien/Documents/Developpement/arvala
+Total : 71 files,  15333 codes, 304 comments, 712 blanks, all 16349 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          6 |     11,328 |          8 |          3 |     11,339 |
+| TypeScript         |         56 |      3,844 |        284 |        668 |      4,796 |
+| Markdown           |          2 |         60 |          2 |         28 |         90 |
+| JavaScript         |          1 |         30 |          0 |          1 |         31 |
+| JSON with Comments |          2 |         30 |          0 |          2 |         32 |
+| YAML               |          1 |         15 |          0 |          1 |         16 |
+| Properties         |          1 |         15 |          2 |          4 |         21 |
+| Docker             |          1 |          7 |          8 |          5 |         20 |
+| Ignore             |          1 |          4 |          0 |          0 |          4 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                         | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                            |         71 |     15,333 |        304 |        712 |     16,349 |
+| . (Files)                                                                                    |         12 |     11,463 |         20 |         35 |     11,518 |
+| .expo                                                                                        |          2 |         17 |          0 |          8 |         25 |
+| src                                                                                          |         55 |      3,824 |        284 |        663 |      4,771 |
+| src (Files)                                                                                  |          4 |         79 |         14 |         14 |        107 |
+| src/auth                                                                                     |         10 |        258 |         50 |         57 |        365 |
+| src/auth (Files)                                                                             |          7 |        229 |         19 |         45 |        293 |
+| src/auth/strategies                                                                          |          3 |         29 |         31 |         12 |         72 |
+| src/cloudinary                                                                               |          3 |         57 |          0 |         12 |         69 |
+| src/email                                                                                    |          3 |          0 |        180 |         42 |        222 |
+| src/event                                                                                    |          6 |        911 |         14 |        154 |      1,079 |
+| src/place                                                                                    |          6 |      1,059 |          7 |        146 |      1,212 |
+| src/relationships                                                                            |          5 |        150 |          0 |         34 |        184 |
+| src/topics                                                                                   |          5 |        273 |          0 |         60 |        333 |
+| src/user                                                                                     |          6 |        281 |         19 |         71 |        371 |
+| src/utils                                                                                    |          7 |        756 |          0 |         73 |        829 |
+| src/utils (Files)                                                                            |          4 |        678 |          0 |         54 |        732 |
+| src/utils/page                                                                               |          3 |         78 |          0 |         19 |         97 |
+| test                                                                                         |          2 |         29 |          0 |          6 |         35 |
++----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                     | language           | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| /Users/aurelien/Documents/Developpement/arvala/.dockerignore                                 | Ignore             |          4 |          0 |          0 |          4 |
+| /Users/aurelien/Documents/Developpement/arvala/.env                                          | Properties         |         15 |          2 |          4 |         21 |
+| /Users/aurelien/Documents/Developpement/arvala/.eslintrc.js                                  | JavaScript         |         30 |          0 |          1 |         31 |
+| /Users/aurelien/Documents/Developpement/arvala/.expo/README.md                               | Markdown           |          9 |          0 |          7 |         16 |
+| /Users/aurelien/Documents/Developpement/arvala/.expo/settings.json                           | JSON with Comments |          8 |          0 |          1 |          9 |
+| /Users/aurelien/Documents/Developpement/arvala/.prettierrc                                   | JSON               |         20 |          0 |          0 |         20 |
+| /Users/aurelien/Documents/Developpement/arvala/Dockerfile                                    | Docker             |          7 |          8 |          5 |         20 |
+| /Users/aurelien/Documents/Developpement/arvala/README.md                                     | Markdown           |         51 |          2 |         21 |         74 |
+| /Users/aurelien/Documents/Developpement/arvala/docker-compose.yml                            | YAML               |         15 |          0 |          1 |         16 |
+| /Users/aurelien/Documents/Developpement/arvala/nest-cli.json                                 | JSON               |          7 |          0 |          1 |          8 |
+| /Users/aurelien/Documents/Developpement/arvala/package-lock.json                             | JSON               |     11,191 |          0 |          1 |     11,192 |
+| /Users/aurelien/Documents/Developpement/arvala/package.json                                  | JSON               |         98 |          6 |          0 |        104 |
+| /Users/aurelien/Documents/Developpement/arvala/src/app.controller.ts                         | TypeScript         |         10 |          0 |          3 |         13 |
+| /Users/aurelien/Documents/Developpement/arvala/src/app.module.ts                             | TypeScript         |         33 |         10 |          2 |         45 |
+| /Users/aurelien/Documents/Developpement/arvala/src/app.service.ts                            | TypeScript         |          7 |          0 |          2 |          9 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/auth.controller.ts                   | TypeScript         |         32 |         12 |          6 |         50 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/auth.dto.ts                          | TypeScript         |         12 |          0 |          4 |         16 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/auth.module.ts                       | TypeScript         |         20 |          0 |          2 |         22 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/auth.schema.ts                       | TypeScript         |         22 |          0 |          6 |         28 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/auth.service.ts                      | TypeScript         |        133 |          7 |         22 |        162 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/jwt-authentication.guard.ts          | TypeScript         |          4 |          0 |          2 |          6 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/requestWithUser.interface.ts         | TypeScript         |          6 |          0 |          3 |          9 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/strategies/accessToken.strategy.ts   | TypeScript         |         21 |          0 |          4 |         25 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/strategies/jwt-payload.interface.ts  | TypeScript         |          8 |          0 |          3 |         11 |
+| /Users/aurelien/Documents/Developpement/arvala/src/auth/strategies/refreshToken.strategy.ts  | TypeScript         |          0 |         31 |          5 |         36 |
+| /Users/aurelien/Documents/Developpement/arvala/src/cloudinary/cloudinary.module.ts           | TypeScript         |          8 |          0 |          2 |         10 |
+| /Users/aurelien/Documents/Developpement/arvala/src/cloudinary/cloudinary.provider.ts         | TypeScript         |         11 |          0 |          2 |         13 |
+| /Users/aurelien/Documents/Developpement/arvala/src/cloudinary/cloudinary.service.ts          | TypeScript         |         38 |          0 |          8 |         46 |
+| /Users/aurelien/Documents/Developpement/arvala/src/email/email.module.ts                     | TypeScript         |          0 |         10 |          2 |         12 |
+| /Users/aurelien/Documents/Developpement/arvala/src/email/email.service.ts                    | TypeScript         |          0 |        138 |         34 |        172 |
+| /Users/aurelien/Documents/Developpement/arvala/src/email/emailConfirmation.service.ts        | TypeScript         |          0 |         32 |          6 |         38 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/event.controller.ts                 | TypeScript         |        115 |          4 |         16 |        135 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/event.dto.ts                        | TypeScript         |        123 |          0 |         51 |        174 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/event.module.ts                     | TypeScript         |         18 |          0 |          2 |         20 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/event.schema.ts                     | TypeScript         |        139 |          0 |         27 |        166 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/event.service.ts                    | TypeScript         |        448 |         10 |         55 |        513 |
+| /Users/aurelien/Documents/Developpement/arvala/src/event/utils.ts                            | TypeScript         |         68 |          0 |          3 |         71 |
+| /Users/aurelien/Documents/Developpement/arvala/src/main.ts                                   | TypeScript         |         29 |          4 |          7 |         40 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/place.controller.ts                 | TypeScript         |         92 |          0 |         14 |        106 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/place.dto.ts                        | TypeScript         |        141 |          0 |         49 |        190 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/place.module.ts                     | TypeScript         |         20 |          0 |          2 |         22 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/place.schema.ts                     | TypeScript         |        126 |          0 |         26 |        152 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/place.service.ts                    | TypeScript         |        549 |          7 |         53 |        609 |
+| /Users/aurelien/Documents/Developpement/arvala/src/place/types.ts                            | TypeScript         |        131 |          0 |          2 |        133 |
+| /Users/aurelien/Documents/Developpement/arvala/src/relationships/relationships.controller.ts | TypeScript         |         23 |          0 |          5 |         28 |
+| /Users/aurelien/Documents/Developpement/arvala/src/relationships/relationships.dto.ts        | TypeScript         |         32 |          0 |          9 |         41 |
+| /Users/aurelien/Documents/Developpement/arvala/src/relationships/relationships.module.ts     | TypeScript         |         16 |          0 |          2 |         18 |
+| /Users/aurelien/Documents/Developpement/arvala/src/relationships/relationships.schema.ts     | TypeScript         |         26 |          0 |          7 |         33 |
+| /Users/aurelien/Documents/Developpement/arvala/src/relationships/relationships.service.ts    | TypeScript         |         53 |          0 |         11 |         64 |
+| /Users/aurelien/Documents/Developpement/arvala/src/topics/topic.controller.ts                | TypeScript         |         37 |          0 |          8 |         45 |
+| /Users/aurelien/Documents/Developpement/arvala/src/topics/topic.dto.ts                       | TypeScript         |         53 |          0 |         18 |         71 |
+| /Users/aurelien/Documents/Developpement/arvala/src/topics/topic.module.ts                    | TypeScript         |         16 |          0 |          2 |         18 |
+| /Users/aurelien/Documents/Developpement/arvala/src/topics/topic.schema.ts                    | TypeScript         |         48 |          0 |         11 |         59 |
+| /Users/aurelien/Documents/Developpement/arvala/src/topics/topic.service.ts                   | TypeScript         |        119 |          0 |         21 |        140 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/create-user.dto.ts                   | TypeScript         |         24 |          0 |          8 |         32 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/user.controller.ts                   | TypeScript         |         57 |         10 |         11 |         78 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/user.dto.ts                          | TypeScript         |         45 |          0 |         15 |         60 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/user.module.ts                       | TypeScript         |         14 |          0 |          2 |         16 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/user.schema.ts                       | TypeScript         |         57 |          0 |         17 |         74 |
+| /Users/aurelien/Documents/Developpement/arvala/src/user/user.service.ts                      | TypeScript         |         84 |          9 |         18 |        111 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/BaseDBObject.ts                     | TypeScript         |         21 |          0 |          7 |         28 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/GeoPoint.ts                         | TypeScript         |         23 |          0 |          5 |         28 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/commons.schema.ts                   | TypeScript         |        131 |          0 |         12 |        143 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/page/page-meta.dto.ts               | TypeScript         |         28 |          0 |          9 |         37 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/page/page-options.dto.ts            | TypeScript         |         36 |          0 |          6 |         42 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/page/page.dto.ts                    | TypeScript         |         14 |          0 |          4 |         18 |
+| /Users/aurelien/Documents/Developpement/arvala/src/utils/types.ts                            | TypeScript         |        503 |          0 |         30 |        533 |
+| /Users/aurelien/Documents/Developpement/arvala/test/app.e2e-spec.ts                          | TypeScript         |         20 |          0 |          5 |         25 |
+| /Users/aurelien/Documents/Developpement/arvala/test/jest-e2e.json                            | JSON               |          9 |          0 |          1 |         10 |
+| /Users/aurelien/Documents/Developpement/arvala/tsconfig.build.json                           | JSON               |          3 |          2 |          0 |          5 |
+| /Users/aurelien/Documents/Developpement/arvala/tsconfig.json                                 | JSON with Comments |         22 |          0 |          1 |         23 |
+| Total                                                                                        |                    |     15,333 |        304 |        712 |     16,349 |
++----------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

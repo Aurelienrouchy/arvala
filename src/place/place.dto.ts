@@ -18,9 +18,14 @@ import {
   HoursClass,
   SlugClass,
   SocialClass,
-  VERIFICATION_STATUS
+  VERIFICATION_STATUS,
+  PartialEvent,
+  PartialPlace,
+  IHoursFormatted,
+  HoursFormattedClass
 } from 'src/utils/types'
 import { Types } from 'mongoose'
+import { PartialPlaceEntity } from 'src/event/event.dto'
 
 export class CreatePlaceDto extends AbstractEntity {
   @IsDefined()
@@ -40,6 +45,9 @@ export class CreatePlaceDto extends AbstractEntity {
 
   @IsOptional()
   hours: IHours
+
+  @IsOptional()
+  hoursFormatted: IHoursFormatted
 
   @IsOptional()
   happyHours: IHours
@@ -81,6 +89,27 @@ export class CreatePlaceDto extends AbstractEntity {
   createdBy: Types.ObjectId
 }
 
+class PartialEventEntity {
+  @Expose()
+  id: string
+
+  @Expose()
+  name: string
+
+  @Expose()
+  cover: string
+
+  @Expose()
+  beginAt: string
+
+  @Expose()
+  minPrice: string
+
+  @Expose()
+  @Type(() => PartialPlaceEntity)
+  place: PartialPlace
+}
+
 export class PlaceEntity extends AbstractEntity {
   constructor(partial: Partial<PlaceEntity>) {
     super()
@@ -108,13 +137,9 @@ export class PlaceEntity extends AbstractEntity {
   @Expose()
   photos: string[]
 
-  @Expose()
-  @Type(() => HoursClass)
-  hours: IHours
-
-  @Expose()
-  @Type(() => HoursClass)
-  happyHours: IHours
+  @Expose({ name: 'hoursFormatted' })
+  @Type(() => HoursFormattedClass)
+  hours: IHoursFormatted
 
   @Expose()
   address: string
@@ -149,6 +174,10 @@ export class PlaceEntity extends AbstractEntity {
   @Expose()
   @Type(() => DrinkClass)
   drinks: [IDrink]
+
+  @Expose()
+  @Type(() => PartialEventEntity)
+  events: PartialEvent
 
   @Expose()
   bestPrice: IDrinkBestPrices

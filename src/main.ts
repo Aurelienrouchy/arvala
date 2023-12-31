@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import * as dotenv from 'dotenv'
+import bodyParser from 'body-parser'
 dotenv.config()
 
 import 'reflect-metadata'
@@ -23,6 +24,7 @@ async function bootstrap() {
       // }
     })
   )
+  app.use(bodyParser.urlencoded({ extended: true }))
   app.enableCors(options)
 
   const config = new DocumentBuilder()

@@ -32,7 +32,9 @@ export class RelationshipsService {
       relationshipDto
     ).save()
 
-    return plainToInstance(RelationshipEntity, savedRelationship, {
+    const re = await savedRelationship.populate('following')
+
+    return plainToInstance(RelationshipEntity, re, {
       excludeExtraneousValues: true,
       enableImplicitConversion: true
     })
@@ -49,7 +51,9 @@ export class RelationshipsService {
   }
 
   async findFollowingOfUser(userId: string): Promise<RelationshipEntity[]> {
-    const res = await this.relationshipRepository.find({ follower: userId })
+    const res = await this.relationshipRepository
+      .find({ follower: userId })
+      .populate('following')
 
     return plainToInstance(RelationshipEntity, res, {
       excludeExtraneousValues: true,

@@ -21,6 +21,16 @@ import { PLACE_TYPES } from 'src/utils/types'
 export class PlacesController {
   constructor(private placesService: PlacesService) {}
 
+  @Get('shotgun')
+  getShotgunPlace(): Promise<any> {
+    return this.placesService.saveShotgunPlace()
+  }
+
+  @Get('dice')
+  getDicePlace(): Promise<any> {
+    return this.placesService.saveDicePlace()
+  }
+
   @Get('near')
   findNear(
     @Query('lat') latitude: number,
@@ -41,24 +51,33 @@ export class PlacesController {
     @Query('lat') latitude: number,
     @Query('lng') longitude: number,
     @Query('distance') distance: number
-  ): Promise<PlaceEntity[]> {
+  ): Promise<PlaceEntityMinimize[]> {
     return this.placesService.findClubs(latitude, longitude, distance)
+  }
+
+  @Get('bars')
+  findBars(
+    @Query('lat') latitude: number,
+    @Query('lng') longitude: number,
+    @Query('distance') distance: number
+  ): Promise<PlaceEntityMinimize[]> {
+    console.log(latitude, longitude)
+    return this.placesService.findBars(latitude, longitude, distance)
+  }
+
+  @Get('name')
+  findByName(@Query('name') name: string): Promise<PlaceEntityMinimize[]> {
+    return this.placesService.getByName(name)
+  }
+
+  @Get('filters')
+  findByFilters(@Body() event: Partial<PlaceEntity>): Promise<PlaceEntity[]> {
+    return this.placesService.findByFilters(event)
   }
 
   @Get(':id')
   findOneById(@Param('id') id: string): Promise<PlaceEntity> {
-    console.log(id)
     return this.placesService.findOneById(id)
-  }
-
-  @Get(':name')
-  findPlacesByName(@Param('name') name: string): Promise<PlaceEntity[]> {
-    return this.placesService.findPlacesByName(name)
-  }
-
-  @Get('/filters')
-  findByFilters(@Body() event: Partial<PlaceEntity>): Promise<PlaceEntity[]> {
-    return this.placesService.findByFilters(event)
   }
 
   @Get()

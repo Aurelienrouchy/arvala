@@ -1,6 +1,7 @@
-import { Expose, Transform } from 'class-transformer'
+import { Expose, Transform, Type } from 'class-transformer'
 import { IsDefined, IsString } from 'class-validator'
-import { ObjectId, Types } from 'mongoose'
+import { ObjectId } from 'mongoose'
+import { EventEntityMinimize } from 'src/event/event.dto'
 import { AbstractEntity } from 'src/utils/BaseDBObject'
 
 export class CreateRelationshipDto {
@@ -34,5 +35,6 @@ export class RelationshipEntity extends AbstractEntity {
   follower: string
 
   @Expose()
-  following: string
+  @Type(() => EventEntityMinimize)
+  following: EventEntityMinimize
 }

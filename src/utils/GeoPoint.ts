@@ -20,7 +20,7 @@ export class GeoPoint {
 
 export class GeoPointEntity {
   @Expose()
-  type: [string]
+  type: string
 
   @Expose()
   coordinates: [number, number]

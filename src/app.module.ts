@@ -7,13 +7,18 @@ import { UserModule } from './user/user.module'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from './auth/auth.module'
 import Joi from 'joi'
+import { TopicsModule } from './topics/topic.module'
+import { CloudinaryModule } from './cloudinary/cloudinary.module'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
   imports: [
     RelationshipsModule,
     PlaceModule,
+    TopicsModule,
     UserModule,
     EventsModule,
+    ScheduleModule.forRoot(),
     MongooseModule.forRoot(
       'mongodb+srv://aurelien:Prout123.!@cluster0.mywprwj.mongodb.net/cosh?retryWrites=true&w=majority&ssl=true',
       { autoIndex: true }
@@ -34,7 +39,8 @@ import Joi from 'joi'
         // EMAIL_USER: Joi.string().required(),
         // EMAIL_PASSWORD: Joi.string().required()
       })
-    })
+    }),
+    CloudinaryModule
   ]
 })
 export class AppModule {}

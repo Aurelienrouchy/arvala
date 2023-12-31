@@ -47,7 +47,7 @@ export class Topic extends BaseDBObject {
   @Prop({
     type: [SchemaTypes.ObjectId],
     required: true,
-    refPath: 'type'
+    ref: 'Place'
   })
   content: Types.ObjectId[]
 

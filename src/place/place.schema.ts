@@ -2,10 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document, SchemaTypes, Types } from 'mongoose'
 import { BaseDBObject } from '../utils/BaseDBObject'
 import {
+  BarTypeSchema,
   ContactsSchema,
   DrinkBestPricesSchema,
   DrinksSchema,
   GeoPointSchema,
+  HourFormattedSchema,
   HourSchema,
   SlugSchema,
   SocialSchema
@@ -21,7 +23,9 @@ import {
   PLACE_SUB_TYPES,
   PRICE_RANGE,
   PLACE_TYPES,
-  VERIFICATION_STATUS
+  VERIFICATION_STATUS,
+  BarType,
+  IHoursFormatted
 } from 'src/utils/types'
 
 export type PlaceDocument = Place & Document
@@ -68,9 +72,14 @@ export class Place extends BaseDBObject {
   hours: IHours
 
   @Prop({
+    type: HourFormattedSchema
+  })
+  hoursFormatted: IHours
+
+  @Prop({
     type: HourSchema
   })
-  happyHours: IHours
+  happyHours: IHoursFormatted
 
   @Prop({
     type: String
@@ -112,12 +121,12 @@ export class Place extends BaseDBObject {
   @Prop({
     type: [String]
   })
-  categories: (typeof PLACE_TYPES)[]
+  categories: string[]
 
   @Prop({
     type: [String]
   })
-  subCategories: (typeof PLACE_SUB_TYPES)[]
+  subCategories: string[]
 
   @Prop({
     type: String
@@ -133,6 +142,9 @@ export class Place extends BaseDBObject {
     type: [DrinkBestPricesSchema]
   })
   bestPrice: IDrinkBestPrices
+
+  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Event' })
+  events: Types.ObjectId[]
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
   createdBy: Types.ObjectId

@@ -111,6 +111,11 @@ export class Event extends BaseDBObject {
   minPrice: number
 
   @Prop({
+    type: Boolean
+  })
+  isSoldOut: boolean
+
+  @Prop({
     type: Number
   })
   maxPrice: number

@@ -81,16 +81,16 @@ export class UserService {
     userId: string,
     user: Partial<User>
   ): Promise<UserEntity> {
-    const updateUser = await this.userRepository
-      .findByIdAndUpdate(userId, user, { new: true })
-      .exec()
+    // const updateUser = await this.userRepository
+    //   .findByIdAndUpdate(userId, user, { new: true })
+    //   .exec()
 
-    if (updateUser) {
-      return plainToClass(UserEntity, updateUser, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true
-      })
-    }
+    // if (updateUser) {
+    //   return plainToClass(UserEntity, updateUser, {
+    //     excludeExtraneousValues: true,
+    //     enableImplicitConversion: true
+    //   })
+    // }
 
     throw new HttpException(`User ${user._id} not found`, HttpStatus.NOT_FOUND)
   }
