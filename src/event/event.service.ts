@@ -12,13 +12,18 @@ import { User, UserDocument } from 'src/user/user.schema'
 import { plainToClass } from 'class-transformer'
 import { UserEntity } from '../user/user.dto'
 import { Place, PlaceDocument } from 'src/place/place.schema'
-import { PlaceEntityMinimize } from 'src/place/place.dto'
+import { PlaceEntity, PlaceEntityMinimize } from 'src/place/place.dto'
+import axios from 'axios'
+import { CONCERT_TAGS, DJ_TAGS } from 'src/place/types'
+import { PlacesService } from 'src/place/place.service'
+import { Cron } from '@nestjs/schedule'
 @Injectable()
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventsRepository: Model<EventDocument>,
     @InjectModel(Place.name) private placesRepository: Model<PlaceDocument>,
-    @InjectModel(User.name) private userRepository: Model<UserDocument>
+    @InjectModel(User.name) private userRepository: Model<UserDocument>,
+    private placesService: PlacesService
   ) {}
 
   async create(eventDto: CreateEventDto): Promise<EventEntity> {
@@ -74,14 +79,13 @@ export class EventsService {
       })
     )
   }
-
   async getDailyEvents(
     maxDistance: number,
     coordinates: [number, number],
     limit = 7
   ): Promise<EventEntityMinimize[]> {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setHours(today.getHours() - 5)
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     tomorrow.setHours(tomorrow.getHours() + 4)
@@ -119,7 +123,6 @@ export class EventsService {
       })
     )
   }
-
   async getByName(name: string): Promise<EventEntityMinimize[]> {
     const events = await this.eventsRepository
       .find({ name: { $regex: name, $options: 'i' } })
@@ -132,14 +135,13 @@ export class EventsService {
       })
     )
   }
-
   async getWeeklyEvents(
     maxDistance: number,
     coordinates: [number, number],
     limit = 7
   ): Promise<EventEntityMinimize[]> {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setHours(today.getHours() - 5)
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 7)
     tomorrow.setHours(tomorrow.getHours() + 4)
@@ -173,40 +175,39 @@ export class EventsService {
     )
   }
 
-  async getConcertsEvents(
+  async getEvents(
     coordinates: [number, number],
     start: string,
     end: string,
     types: string,
+    categories: string,
     limit = 1000,
     maxDistance = 10000
   ): Promise<EventEntityMinimize[]> {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setHours(today.getHours() - 5)
 
     const query = {
-      categories: 'concert'
+      categories
     }
 
-    if (start) {
-      query['beginAt'] = {
-        ...(query['beginAt'] || {}),
-        $gte: new Date(start)
-      }
+    query['beginAt'] = {
+      $gte: start ? new Date(start) : today
     }
 
     if (end) {
+      const finish = new Date(end)
+      finish.setDate(finish.getDate() + 1)
+
       query['beginAt'] = {
         ...(query['beginAt'] || {}),
-        $lt: new Date(end)
+        $lt: finish
       }
     }
 
     if (types) {
       query['subCategories'] = { $in: types.split(',') }
     }
-
-    console.log(query)
 
     const events = await this.eventsRepository.aggregate([
       {
@@ -223,8 +224,6 @@ export class EventsService {
       { $sort: { distance: 1 } },
       { $limit: limit }
     ])
-
-    console.log(events.length)
 
     return events.map((event) =>
       plainToClass(EventEntityMinimize, event, {
@@ -249,7 +248,7 @@ export class EventsService {
       throw new BadRequestException('Longitude must be between -180 and 180')
     }
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setHours(today.getHours() - 5)
 
     try {
       const events = await this.eventsRepository.aggregate([
@@ -259,6 +258,7 @@ export class EventsService {
               type: 'Point',
               coordinates: [lng, lat]
             },
+            maxDistance: 10000,
             distanceField: 'distance',
             query: {
               beginAt: {
@@ -284,8 +284,8 @@ export class EventsService {
 
   async searchEventsAndPlaces(
     search: string,
-    start: Date,
-    end: Date
+    start?: string,
+    end?: string
   ): Promise<{ events: EventEntityMinimize[]; places: PlaceEntityMinimize[] }> {
     const places = await this.placesRepository
       .find({
@@ -296,18 +296,29 @@ export class EventsService {
       })
       .limit(10)
 
-    const events = await this.eventsRepository
-      .find({
-        name: {
-          $regex: search,
-          $options: 'i'
-        },
-        beginAt: {
-          $gte: start,
-          $lt: end
-        }
-      })
-      .limit(10)
+    const query = {
+      name: {
+        $regex: search,
+        $options: 'i'
+      }
+    }
+
+    console.log(start, end, search)
+    query['beginAt'] = {
+      $gte: start ? new Date(start) : new Date()
+    }
+
+    if (end) {
+      const finish = new Date(end)
+      finish.setDate(finish.getDate() + 1)
+
+      query['beginAt'] = {
+        ...(query['beginAt'] || {}),
+        $lt: finish
+      }
+    }
+
+    const events = await this.eventsRepository.find(query).limit(10)
 
     return {
       events: events.map((event) =>
@@ -455,9 +466,12 @@ export class EventsService {
   }
 
   async findOneById(id: string): Promise<EventEntity> {
-    const event = await this.eventsRepository.findById(id).exec()
+    const event = await this.eventsRepository
+      .findById(id)
+      .populate('createdBy')
+      // .populate('createdBy', 'Place')
+      .exec()
 
-    console.log(event)
     if (event) {
       return plainToClass(EventEntity, event, {
         excludeExtraneousValues: true,
@@ -468,6 +482,338 @@ export class EventsService {
     throw new HttpException(`Event ${id} not found`, HttpStatus.NOT_FOUND)
   }
 
+  async getShotgunEventsFromOrgaId(dealerId: string) {
+    try {
+      const { data } = await axios.post(
+        'https://b2c-api.shotgun.live/api/graphql',
+        {
+          query: `query events($filter: EventFilterInput, $page: Page, $areaId: String, $search: String, $sort: EventSortInput, $dealFilter: DealFilterInput) {
+            events(
+              filter: $filter
+              page: $page
+              areaId: $areaId
+              search: $search
+              sort: $sort
+            ) {
+              id
+              ...EventListItem_event
+              minTicketPrice(filter: $dealFilter)
+            }
+          }
+          
+          fragment EventListItem_event on Event {
+            id
+            slug
+            description
+            typeOfPlace
+            webToAppUrl
+            name
+            featuredText
+            artworks(roles: [cover, coverVertical, trailer]) {
+              id
+              role
+              originalUrl
+              blurDataUrl
+            }
+            cancelledAt
+            startTime
+            addressVisibility
+            endTime
+            timezone
+            currency
+            artists {
+              avatar
+              name
+            }
+            tags {
+              id
+              name
+              typo
+              category {
+                id
+                slug
+              }
+            }
+            dealer {
+              id
+              name
+              slug
+              website
+            }
+            launchedAt
+            isSoldOut
+            nextSalesTime
+            publicationStatus
+            realityType {
+              isReal
+              isVirtual
+            }
+            geolocation {
+              id
+              street
+              venue
+              lat
+              lng
+              city {
+                id
+                name
+                zipCode
+                country {
+                  id
+                  slug
+                  isoCode
+                }
+              }
+            }
+            totalInterestedOrGoing
+            isWaitingListAvailable
+            hasExternalDeals
+          }`,
+          variables: {
+            filter: {
+              upcoming: true,
+              dealerId
+            },
+            sort: {
+              criterion: 'START_TIME',
+              order: 'ASC'
+            },
+            page: {
+              take: 200,
+              skip: 0
+            }
+          }
+        }
+      )
+
+      return data.data.events
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  @Cron('0 2 * * *')
+  async recordShotgunEvents() {
+    const shotgunUsers = await this.userRepository.find({
+      'slugs.shotgunId': { $ne: null }
+    })
+
+    for (const user of shotgunUsers) {
+      const events = await this.getShotgunEventsFromOrgaId(user.slugs.shotgunId)
+
+      for (const event of events) {
+        const isExist = await this.eventsRepository
+          .findOne({
+            'slugs.shotgun': event.slug
+          })
+          .lean()
+
+        if (isExist) {
+          continue
+        }
+
+        const cover = event.artworks?.find(
+          (e: { role: string; originalUrl: string }) =>
+            e.role === 'cover' && !e.originalUrl.includes('.mp4')
+        )?.originalUrl
+
+        const subCategories = event.tags.map(
+          (tag: { name: string }) => tag.name
+        )
+
+        const eventToRecord = {
+          name: event.name,
+          desc: event.description,
+          location: {
+            type: 'Point',
+            coordinates: [event.geolocation.lat, event.geolocation.lng]
+          },
+          cover,
+          lineup: event.artists?.map((artist: any) => ({
+            about: null,
+            image: artist?.avatar || null,
+            name: artist?.name || null
+          })),
+          beginAt: event.startTime * 1000 || null,
+          place: {
+            name: event.geolocation?.venue || null,
+            address: event.geolocation?.street || null
+          },
+          isSoldOut: event?.isSoldOut || false,
+          slugs: { shotgun: event.slug },
+          endAt: event.endTime * 1000 || null,
+          minPrice: event?.minTicketPrice || 0,
+          maxPrice: event?.price?.amount || 0,
+          categories: ['club'],
+          subCategories,
+          url: event.webToAppUrl,
+          address: event.geolocation?.street || null,
+          followersCount: event.totalInterestedOrGoing || 0,
+          createdBy: user._id,
+          createdByModel: 'User'
+        }
+
+        try {
+          const recordedEvent = await this.eventsRepository.create(
+            eventToRecord
+          )
+
+          await this.userRepository.findOneAndUpdate(
+            { _id: user._id },
+            {
+              $addToSet: {
+                events: recordedEvent._id
+              }
+            },
+            { new: true }
+          )
+        } catch (error) {
+          console.log(`Error on SAVE: ${event.slug}`, error)
+        }
+      }
+    }
+  }
+  @Cron('0 1 * * *')
+  async recordDiceEvents() {
+    for (const tag of [...CONCERT_TAGS, ...DJ_TAGS]) {
+      const { data } = await axios.post('https://api.dice.fm/unified_search', {
+        count: 2000000,
+        lat: 48.864716,
+        lng: 2.349014,
+        tag
+      })
+
+      for (const section of data.sections) {
+        if (section.events) {
+          for (const event of section.events) {
+            const subCategories = tag.split(':')[1]
+            const isExist = await this.eventsRepository
+              .findOne({
+                'slugs.dice': event.perm_name
+              })
+              .lean()
+
+            if (isExist) {
+              await this.eventsRepository.findByIdAndUpdate(isExist._id, {
+                $addToSet: { subCategories }
+              })
+
+              continue
+            }
+
+            let venue = await this.placesRepository.findOne({
+              'slugs.dice': event.venues[0]?.perm_name
+            })
+
+            if (!venue) {
+              venue = await this.placesService.saveDicePlace(
+                event.venues[0]?.perm_name
+              )
+
+              if (!venue) {
+                venue = await this.placesRepository.findOne({
+                  address: event.venues[0]?.address
+                })
+
+                if (!venue) {
+                  const venueToRecord = {
+                    name: event.venues[0]?.name,
+                    desc: null,
+                    location: {
+                      type: 'Point',
+                      coordinates: [
+                        event.venues[0]?.location.lat,
+                        event.venues[0].location.lng
+                      ]
+                    },
+                    cover: null,
+                    address: event.venues[0]?.address || null,
+                    slugs: {
+                      dice: event.venues[0].perm_name
+                    },
+                    photos: [null],
+                    social: {
+                      dice: event.venues[0].perm_name
+                    },
+                    verificationStatus: 0,
+                    price: null,
+                    categories: ['LIVE_MUSIC_VENUE'],
+                    createdBy: '63dfad3dc47e14d030fc180a'
+                  }
+
+                  try {
+                    venue = await new this.placesRepository(
+                      venueToRecord
+                    ).save()
+                  } catch (err) {
+                    console.log(err)
+                  }
+                }
+              }
+            }
+
+            const coverOriginalUrl =
+              event.images?.landscape ||
+              event.images?.portrait ||
+              event.images?.square
+
+            const eventToRecord = {
+              name: event.name,
+              desc: event.about.description,
+              location: {
+                type: 'Point',
+                coordinates: [
+                  event.venues[0].location.lat,
+                  event.venues[0].location.lng
+                ]
+              },
+              cover: coverOriginalUrl,
+              lineup: event.summary_lineup?.top_artists?.map((artist: any) => ({
+                about:
+                  (artist?.about?.description
+                    ? artist?.about?.description
+                    : artist?.about) || null,
+                image: artist?.image?.url || null,
+                name: artist?.name || null
+              })),
+              beginAt: event?.dates?.event_start_date || null,
+              place: {
+                name: event.venues[0]?.name,
+                address: event.venues[0]?.address
+              },
+              isSoldOut: event?.status === 'sold-out' || false,
+              slugs: { dice: event.perm_name },
+              endAt: event?.dates?.event_end_date || null,
+              minPrice: event.price?.amount / 100 || 0,
+              categories: ['concert'],
+              subCategories,
+              address: event.venues?.address || 'Paris',
+              followersCount: 0,
+              createdBy: venue._id,
+              createdByModel: 'Place'
+            }
+
+            try {
+              const recordedEvent = await this.eventsRepository.create(
+                eventToRecord
+              )
+              await this.placesRepository.findOneAndUpdate(
+                { _id: venue._id },
+                {
+                  $addToSet: {
+                    events: recordedEvent._id
+                  }
+                },
+                { new: true }
+              )
+            } catch (error) {
+              console.log(error.response)
+            }
+          }
+        }
+      }
+    }
+  }
   async updateOneById(
     id: string,
     event: Partial<EventEntity>

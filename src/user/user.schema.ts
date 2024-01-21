@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document } from 'mongoose'
+import { Document, SchemaTypes, Types } from 'mongoose'
 import { GeoPoint } from 'src/utils/GeoPoint'
 import { BaseDBObject } from '../utils/BaseDBObject'
 import {
@@ -14,7 +14,8 @@ import { IPlace, ISlug, IContacts, ISocial, IEvent } from 'src/utils/types'
 export type UserDocument = User & Document
 export enum ROLE {
   ADMIN = 'admin',
-  USER = 'user'
+  USER = 'user',
+  ORGA = 'orga'
 }
 
 export enum PROVIDER_NAME {
@@ -34,9 +35,15 @@ export class User extends BaseDBObject {
   name: string
 
   @Prop({ type: String })
+  age: string
+
+  @Prop({ type: String })
+  gender: string
+
+  @Prop({ type: String })
   desc: string
 
-  @Prop({ type: GeoPoint, required: true })
+  @Prop({ type: GeoPoint })
   location: GeoPoint
 
   @Prop({ type: String })
@@ -63,11 +70,8 @@ export class User extends BaseDBObject {
   @Prop({ type: SocialSchema })
   social: ISocial
 
-  @Prop({ type: [PartialEventSchema] })
-  events: Pick<
-    IEvent,
-    'id' | 'name' | 'place' | 'cover' | 'beginAt' | 'minPrice'
-  >[]
+  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Event' })
+  events: Types.ObjectId[]
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User)

@@ -5,6 +5,7 @@ import { EventsService } from './event.service'
 import { Event, EventSchema } from './event.schema'
 import { User, UsersSchema } from 'src/user/user.schema'
 import { Place, PlacesSchema } from 'src/place/place.schema'
+import { PlacesService } from 'src/place/place.service'
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { Place, PlacesSchema } from 'src/place/place.schema'
     MongooseModule.forFeature([{ name: Place.name, schema: PlacesSchema }])
   ],
   controllers: [EventsController],
-  providers: [EventsService],
+  providers: [EventsService, PlacesService],
   exports: [EventsService]
 })
 export class EventsModule {}

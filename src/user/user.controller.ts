@@ -21,6 +21,10 @@ import { ApiTags } from '@nestjs/swagger'
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Get('shotgun')
+  recordShotgunOrgas() {
+    return this.userService.recordShotgunOrgas()
+  }
   @Get(':id')
   findOneById(@Param('id') id: string): Promise<UserEntity> {
     return this.userService.findOneById(id)
@@ -54,7 +58,7 @@ export class UserController {
   // @UseGuards(JwtAuthenticationGuard)
   update(
     @Param('id') id: string,
-    @Body() user: Partial<User>
+    @Body() user: Partial<UserEntity>
     // @Req() request: RequestWithUser
   ): Promise<UserEntity> {
     return this.userService.updateOneById(id, user)

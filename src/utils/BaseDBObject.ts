@@ -25,3 +25,15 @@ export abstract class AbstractEntity {
   @Exclude()
   public updatedAt: Date
 }
+
+export abstract class AbstractWithIdEntity {
+  @Expose()
+  @Transform(({ obj }) => obj._id)
+  id: string
+
+  @Exclude()
+  public createdAt: Date
+
+  @Exclude()
+  public updatedAt: Date
+}

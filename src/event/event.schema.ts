@@ -84,6 +84,11 @@ export class Event extends BaseDBObject {
   cover: string
 
   @Prop({
+    type: String
+  })
+  url: string
+
+  @Prop({
     type: [String],
     default: []
   })
@@ -151,8 +156,19 @@ export class Event extends BaseDBObject {
   })
   private: boolean
 
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'User', require: true })
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    required: true,
+    refPath: 'createdByModel'
+  })
   createdBy: Types.ObjectId
+
+  @Prop({
+    type: String,
+    required: true,
+    enum: ['User', 'Place']
+  })
+  createdByModel: string
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event)

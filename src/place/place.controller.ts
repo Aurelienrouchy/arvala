@@ -21,14 +21,14 @@ import { PLACE_TYPES } from 'src/utils/types'
 export class PlacesController {
   constructor(private placesService: PlacesService) {}
 
-  @Get('shotgun')
-  getShotgunPlace(): Promise<any> {
-    return this.placesService.saveShotgunPlace()
-  }
+  // @Get('shotgun')
+  // getShotgunPlace(): Promise<any> {
+  //   return this.placesService.saveShotgunPlace()
+  // }
 
   @Get('dice')
   getDicePlace(): Promise<any> {
-    return this.placesService.saveDicePlace()
+    return this.placesService.saveDicePlaces()
   }
 
   @Get('near')
@@ -54,15 +54,13 @@ export class PlacesController {
   ): Promise<PlaceEntityMinimize[]> {
     return this.placesService.findClubs(latitude, longitude, distance)
   }
-
   @Get('bars')
-  findBars(
-    @Query('lat') latitude: number,
-    @Query('lng') longitude: number,
-    @Query('distance') distance: number
+  getBars(
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+    @Query('types') types?: string
   ): Promise<PlaceEntityMinimize[]> {
-    console.log(latitude, longitude)
-    return this.placesService.findBars(latitude, longitude, distance)
+    return this.placesService.findBars(lat, lng, types)
   }
 
   @Get('name')

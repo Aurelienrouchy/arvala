@@ -29,6 +29,7 @@ export const ArtistSchema = new Schema<IArtist>(
 export const SlugSchema = new Schema<ISlug>(
   {
     shotgun: { type: String, default: null },
+    shotgunId: { type: String, default: null },
     dice: { type: String, default: null },
     facebook: { type: String, default: null },
     billetreduc: { type: String, default: null },

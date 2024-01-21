@@ -20,7 +20,7 @@ import { ScheduleModule } from '@nestjs/schedule'
     EventsModule,
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(
-      'mongodb+srv://aurelien:Prout123.!@cluster0.mywprwj.mongodb.net/cosh?retryWrites=true&w=majority&ssl=true',
+      'mongodb+srv://aurelien:O3LZQuJVlzvAKOaz@cluster0.mywprwj.mongodb.net/cosh?retryWrites=true&w=majority&ssl=true',
       { autoIndex: true }
     ),
     AuthModule,

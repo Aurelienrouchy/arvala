@@ -5,7 +5,10 @@ import {
   UseGuards,
   Req,
   Body,
-  UseFilters
+  UseFilters,
+  Query,
+  Delete,
+  Param
 } from '@nestjs/common'
 import { User } from 'src/user/user.schema'
 import { AuthService } from './auth.service'
@@ -22,31 +25,33 @@ export class AuthController {
   ) {}
 
   @Post('google')
-  async googleAuth(@Body() body: { token: string }) {
-    return this.authService.googleAuth(body.token)
+  async googleAuth(
+    @Body() body: { token: string; name: string; age: string; gender: string }
+  ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
+    return this.authService.googleAuth({
+      token: body.token,
+      name: body.name,
+      age: body.age,
+      gender: body.gender
+    })
   }
 
-  @Post('apple')
-  @UseGuards(AppleOAuthGuard)
-  async appleLogin(@Body() body: { token: string }) {
-    try {
-      return await this.authService.appleAuth(body.token)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  @Post('apple/callback')
-  @UseGuards(AppleOAuthGuard)
-  async appleCallback(@Req() req) {
-    console.log('coucou')
-    return req.user
+  @Get('google')
+  async getUserWithToken(
+    @Query('token') token: string
+  ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
+    return this.authService.getUserWithToken(token)
   }
 
   @Get('login')
   @UseGuards(JwtAuthenticationGuard)
   async login(@Req() request: RequestWithUser): Promise<UserEntity> {
     return request.user
+  }
+
+  @Delete(':id')
+  deleteEvent(@Param('id') id: string) {
+    return this.authService.deleteOneById(id)
   }
 
   // @UseGuards(AuthGuard('refresh-jwt'))

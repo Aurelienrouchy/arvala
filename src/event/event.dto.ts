@@ -1,5 +1,7 @@
 import { Expose, Transform, Type } from 'class-transformer'
 import { IsDefined, IsOptional } from 'class-validator'
+import { PlaceEntityMinimize } from 'src/place/place.dto'
+import { UserEntityMinimize } from 'src/user/user.dto'
 import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
 import { GeoPointEntity } from 'src/utils/GeoPoint'
 import {
@@ -19,6 +21,9 @@ export class CreateEventDto {
 
   @IsOptional()
   cover: string
+
+  @IsOptional()
+  url: string
 
   @IsDefined()
   location: IGeoPoint
@@ -82,6 +87,9 @@ export class EventEntity extends BaseDBObject {
   cover: string
 
   @Expose()
+  url: string
+
+  @Expose()
   @Type(() => GeoPointEntity)
   location: GeoPointEntity
 
@@ -130,7 +138,11 @@ export class EventEntity extends BaseDBObject {
   private: boolean
 
   @Expose()
-  createdBy: string
+  createdByModel: string
+
+  @Expose()
+  @Type(() => UserEntityMinimize || PlaceEntityMinimize)
+  createdBy: UserEntityMinimize | PlaceEntityMinimize
 }
 
 export class PartialPlaceEntity {
@@ -162,6 +174,9 @@ export class EventEntityMinimize extends AbstractEntity {
 
   @Expose()
   cover: string
+
+  @Expose()
+  createdByModel: string
 
   @Expose()
   distance: number

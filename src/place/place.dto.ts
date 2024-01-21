@@ -1,6 +1,6 @@
 import { Expose, Transform, Type } from 'class-transformer'
 import { IsDefined, IsOptional } from 'class-validator'
-import { AbstractEntity } from 'src/utils/BaseDBObject'
+import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
 import { GeoPointEntity } from 'src/utils/GeoPoint'
 import {
   PRICE_RANGE,
@@ -22,10 +22,11 @@ import {
   PartialEvent,
   PartialPlace,
   IHoursFormatted,
-  HoursFormattedClass
+  HoursFormattedClass,
+  IEvent
 } from 'src/utils/types'
 import { Types } from 'mongoose'
-import { PartialPlaceEntity } from 'src/event/event.dto'
+import { EventEntityMinimize, PartialPlaceEntity } from 'src/event/event.dto'
 
 export class CreatePlaceDto extends AbstractEntity {
   @IsDefined()
@@ -57,6 +58,54 @@ export class CreatePlaceDto extends AbstractEntity {
 
   @IsOptional()
   slugs: ISlug
+
+  @IsOptional()
+  bestPriceBeer: number
+
+  @IsOptional()
+  hasFreeWifi: boolean
+
+  @IsOptional()
+  hasAirConditioning: boolean
+
+  @IsOptional()
+  hasTelevision: boolean
+
+  @IsOptional()
+  hasDarts: boolean
+
+  @IsOptional()
+  hasFoosball: boolean
+
+  @IsOptional()
+  hasPinball: boolean
+
+  @IsOptional()
+  hasPool: boolean
+
+  @IsOptional()
+  hasTerrace: boolean
+
+  @IsOptional()
+  hasHandicapAccess: boolean
+
+  @IsOptional()
+  hasFood: boolean
+
+  @IsOptional()
+  hasDogPolicy: boolean
+
+  @IsOptional()
+  hasBoardGames: boolean
+
+  @IsOptional()
+  hasLiveMusic: boolean
+
+  @IsOptional()
+  hasDjSet: boolean
+
+  @IsOptional()
+  hasTakeAway: boolean
 
   @IsOptional()
   contacts: IContacts
@@ -176,24 +225,27 @@ export class PlaceEntity extends AbstractEntity {
   drinks: [IDrink]
 
   @Expose()
-  @Type(() => PartialEventEntity)
-  events: PartialEvent
+  bestPrice: IDrinkBestPrices
 
   @Expose()
-  bestPrice: IDrinkBestPrices
+  @Type(() => EventEntityMinimize)
+  events: Pick<
+    IEvent,
+    'id' | 'name' | 'place' | 'cover' | 'beginAt' | 'minPrice'
+  >[]
 
   @Expose()
   createdBy: Types.ObjectId
 }
 
-export class PlaceEntityMinimize extends AbstractEntity {
+export class PlaceEntityMinimize extends BaseDBObject {
   constructor(partial: Partial<PlaceEntity>) {
     super()
     Object.assign(this, partial)
   }
 
   @Expose()
-  @Transform(({ obj }) => obj._id)
+  @Transform(({ obj }) => obj.id)
   id: string
 
   @Expose()

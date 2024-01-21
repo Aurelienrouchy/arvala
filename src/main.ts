@@ -7,11 +7,18 @@ dotenv.config()
 
 import 'reflect-metadata'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ServiceAccount, initializeApp } from 'firebase-admin/app'
+import serviceAccount from './evenly-74fd5-firebase-adminsdk-tw1hy-ed9e7961ff.json'
+import { credential } from 'firebase-admin'
 
 const options = {
   origin: '*',
   credentials: true
 }
+
+initializeApp({
+  credential: credential.cert(serviceAccount as ServiceAccount)
+})
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)

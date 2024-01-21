@@ -62,6 +62,86 @@ export class Place extends BaseDBObject {
   cover: string
 
   @Prop({
+    type: Number
+  })
+  bestPriceBeer: number
+
+  @Prop({
+    type: Boolean
+  })
+  hasFreeWifi: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasAirConditioning: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasTelevision: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasDarts: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasFoosball: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasPinball: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasPool: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasTerrace: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasHandicapAccess: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasFood: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasDogPolicy: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasBoardGames: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasLiveMusic: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasDjSet: boolean
+
+  @Prop({
+    type: Boolean
+  })
+  hasTakeAway: boolean
+
+  @Prop({
     type: [String]
   })
   photos: string[]

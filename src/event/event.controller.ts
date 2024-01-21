@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseFloatPipe,
@@ -70,8 +71,24 @@ export class EventsController {
     @Query('start') start?: string,
     @Query('end') end?: string
   ): Promise<EventEntityMinimize[]> {
-    console.log(start, end, types)
-    return this.eventsService.getConcertsEvents([lat, lng], start, end, types)
+    return this.eventsService.getEvents(
+      [lat, lng],
+      start,
+      end,
+      types,
+      'concert'
+    )
+  }
+
+  @Get('clubs')
+  getClubsEvents(
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+    @Query('types') types?: string,
+    @Query('start') start?: string,
+    @Query('end') end?: string
+  ): Promise<EventEntityMinimize[]> {
+    return this.eventsService.getEvents([lat, lng], start, end, types, 'club')
   }
 
   @Get('weekly')
@@ -86,8 +103,8 @@ export class EventsController {
   @Get('search')
   search(
     @Query('q') q: string,
-    @Query('start') start: Date,
-    @Query('end') end: Date
+    @Query('start') start?: string,
+    @Query('end') end?: string
   ): Promise<{ places: PlaceEntityMinimize[]; events: EventEntityMinimize[] }> {
     return this.eventsService.searchEventsAndPlaces(q, start, end)
   }
@@ -95,6 +112,16 @@ export class EventsController {
   @Get('filter')
   findByFilters(@Body() filters: Partial<EventEntity>): Promise<EventEntity[]> {
     return this.eventsService.findByFilters(filters)
+  }
+
+  @Get('dice')
+  recordDiceEvents() {
+    return this.eventsService.recordDiceEvents()
+  }
+
+  @Get('shotgun')
+  recordShotgunEvents() {
+    return this.eventsService.recordShotgunEvents()
   }
 
   @Get('name')

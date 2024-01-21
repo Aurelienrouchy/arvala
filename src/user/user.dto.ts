@@ -4,6 +4,7 @@ import { GeoPointEntity } from 'src/utils/GeoPoint'
 import { ROLE } from './user.schema'
 import { IsOptional } from 'class-validator'
 import { IPlace, ISlug, IContacts, ISocial, IEvent } from 'src/utils/types'
+import { EventEntityMinimize } from 'src/event/event.dto'
 
 export class UserEntity extends AbstractEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -52,8 +53,32 @@ export class UserEntity extends AbstractEntity {
   social: ISocial
 
   @Expose()
+  @Type(() => EventEntityMinimize)
   events: Pick<
     IEvent,
     'id' | 'name' | 'place' | 'cover' | 'beginAt' | 'minPrice'
   >[]
+}
+export class UserEntityMinimize extends AbstractEntity {
+  constructor(partial: Partial<UserEntity>) {
+    super()
+    Object.assign(this, partial)
+  }
+
+  @Expose()
+  @Type(() => String)
+  @Transform(({ obj }) => obj.id)
+  id: string
+
+  @Expose()
+  name: string
+
+  @Expose()
+  cover: string
+
+  @Expose()
+  address: string
+
+  @Expose()
+  followersCount: number
 }

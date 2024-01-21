@@ -467,6 +467,7 @@ export interface ISlug {
   billetreduc: string
   schlouk: string
   google: string
+  shotgunId?: string
 }
 
 export class SlugClass {
@@ -524,7 +525,6 @@ export interface IPlace {
   desc: string
   location: IGeoPoint
   cover: string
-  logo: string
   photos: string[]
   hours: IHours
   address: string
@@ -551,8 +551,6 @@ export interface IEvent {
   id: string
   name: string
   desc: string
-  descEN: string
-  descEmbedding: number[]
   location: IGeoPoint
   cover: string
   photos: string[]
