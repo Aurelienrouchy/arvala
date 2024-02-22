@@ -13,7 +13,6 @@ import { PLACE_TYPES } from 'src/utils/types'
 import axios from 'axios'
 import { Event, EventDocument } from 'src/event/event.schema'
 import { v2 as cloudinary } from 'cloudinary'
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service'
 
 cloudinary.config({
   cloud_name: 'dg7zxj4gf',

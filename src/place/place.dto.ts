@@ -1,6 +1,6 @@
 import { Expose, Transform, Type } from 'class-transformer'
 import { IsDefined, IsOptional } from 'class-validator'
-import { AbstractEntity, BaseDBObject } from 'src/utils/BaseDBObject'
+import { AbstractEntity } from 'src/utils/BaseDBObject'
 import { GeoPointEntity } from 'src/utils/GeoPoint'
 import {
   PRICE_RANGE,
@@ -15,11 +15,9 @@ import {
   IGeoPoint,
   DrinkClass,
   ContactsClass,
-  HoursClass,
   SlugClass,
   SocialClass,
   VERIFICATION_STATUS,
-  PartialEvent,
   PartialPlace,
   IHoursFormatted,
   HoursFormattedClass,
@@ -138,27 +136,6 @@ export class CreatePlaceDto extends AbstractEntity {
   createdBy: Types.ObjectId
 }
 
-class PartialEventEntity {
-  @Expose()
-  id: string
-
-  @Expose()
-  name: string
-
-  @Expose()
-  cover: string
-
-  @Expose()
-  beginAt: string
-
-  @Expose()
-  minPrice: string
-
-  @Expose()
-  @Type(() => PartialPlaceEntity)
-  place: PartialPlace
-}
-
 export class PlaceEntity extends AbstractEntity {
   constructor(partial: Partial<PlaceEntity>) {
     super()
@@ -238,14 +215,14 @@ export class PlaceEntity extends AbstractEntity {
   createdBy: Types.ObjectId
 }
 
-export class PlaceEntityMinimize extends BaseDBObject {
+export class PlaceEntityMinimize extends AbstractEntity {
   constructor(partial: Partial<PlaceEntity>) {
     super()
     Object.assign(this, partial)
   }
 
   @Expose()
-  @Transform(({ obj }) => obj.id)
+  @Transform(({ obj }) => obj._id)
   id: string
 
   @Expose()
