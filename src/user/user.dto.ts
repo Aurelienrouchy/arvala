@@ -77,6 +77,9 @@ export class UserEntityMinimize extends AbstractEntity {
   cover: string
 
   @Expose()
+  role: string
+
+  @Expose()
   address: string
 
   @Expose()

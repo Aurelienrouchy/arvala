@@ -55,7 +55,6 @@ export class UserService {
   }
 
   async findOneById(id: string): Promise<UserEntity> {
-    console.log(id)
     const user = await this.userRepository.findById(id).populate('events')
 
     if (user) {
@@ -71,7 +70,7 @@ export class UserService {
   async getByName(name: string): Promise<UserEntityMinimize[]> {
     const users = await this.userRepository
       .find({ name: { $regex: name, $options: 'i' } })
-      .limit(10)
+      .limit(2)
 
     return users.map((user) =>
       plainToClass(UserEntityMinimize, user, {

@@ -245,7 +245,7 @@ export class PlacesService {
   async getByName(name: string): Promise<PlaceEntityMinimize[]> {
     const places = await this.placesRepository
       .find({ name: { $regex: name, $options: 'i' } })
-      .limit(10)
+      .limit(2)
 
     return places.map((event) =>
       plainToClass(PlaceEntityMinimize, event, {

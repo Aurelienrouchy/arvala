@@ -21,10 +21,6 @@ export class UserController {
   recordShotgunOrgas() {
     return this.userService.recordShotgunOrgas()
   }
-  @Get(':id')
-  findOneById(@Param('id') id: string): Promise<UserEntity> {
-    return this.userService.findOneById(id)
-  }
 
   @Get('search')
   search(@Query('q') q: string): Promise<UserEntityMinimize[]> {
@@ -34,6 +30,11 @@ export class UserController {
   @Get('name')
   findByName(@Query('name') name: string): Promise<UserEntityMinimize[]> {
     return this.userService.getByName(name)
+  }
+
+  @Get(':id')
+  findOneById(@Param('id') id: string): Promise<UserEntity> {
+    return this.userService.findOneById(id)
   }
 
   @Get()
