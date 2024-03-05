@@ -6,14 +6,10 @@ import {
   Param,
   Post,
   Put,
-  Req,
-  UseGuards
+  Query
 } from '@nestjs/common'
 import { UserService } from './user.service'
-import { User } from './user.schema'
-import RequestWithUser from 'src/auth/requestWithUser.interface'
-import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard'
-import { UserEntity } from './user.dto'
+import { UserEntity, UserEntityMinimize } from './user.dto'
 import { ApiTags } from '@nestjs/swagger'
 
 @ApiTags('user')
@@ -28,6 +24,16 @@ export class UserController {
   @Get(':id')
   findOneById(@Param('id') id: string): Promise<UserEntity> {
     return this.userService.findOneById(id)
+  }
+
+  @Get('search')
+  search(@Query('q') q: string): Promise<UserEntityMinimize[]> {
+    return this.userService.searchUsers(q)
+  }
+
+  @Get('name')
+  findByName(@Query('name') name: string): Promise<UserEntityMinimize[]> {
+    return this.userService.getByName(name)
   }
 
   @Get()

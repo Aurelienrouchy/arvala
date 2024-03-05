@@ -2,7 +2,7 @@ import { Model } from 'mongoose'
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { User, UserDocument } from './user.schema'
-import { UserEntity } from './user.dto'
+import { UserEntity, UserEntityMinimize } from './user.dto'
 import { plainToClass } from 'class-transformer'
 import axios from 'axios'
 
@@ -66,6 +66,37 @@ export class UserService {
     }
 
     throw new HttpException(`User ${id} not found`, HttpStatus.NOT_FOUND)
+  }
+
+  async getByName(name: string): Promise<UserEntityMinimize[]> {
+    const users = await this.userRepository
+      .find({ name: { $regex: name, $options: 'i' } })
+      .limit(10)
+
+    return users.map((user) =>
+      plainToClass(UserEntityMinimize, user, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
+  }
+
+  async searchUsers(search: string): Promise<UserEntityMinimize[]> {
+    const events = await this.userRepository
+      .find({
+        name: {
+          $regex: search,
+          $options: 'i'
+        }
+      })
+      .limit(10)
+
+    return events.map((event) =>
+      plainToClass(UserEntityMinimize, event, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
   }
 
   async getShotgunOrgaFromEvents() {

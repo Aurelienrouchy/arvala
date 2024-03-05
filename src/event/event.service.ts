@@ -10,7 +10,7 @@ import { Event, EventDocument } from './event.schema'
 import { CreateEventDto, EventEntity, EventEntityMinimize } from './event.dto'
 import { User, UserDocument } from 'src/user/user.schema'
 import { plainToClass } from 'class-transformer'
-import { UserEntity } from '../user/user.dto'
+import { UserEntity, UserEntityMinimize } from '../user/user.dto'
 import { Place, PlaceDocument } from 'src/place/place.schema'
 import { PlaceEntity, PlaceEntityMinimize } from 'src/place/place.dto'
 import axios from 'axios'
@@ -282,20 +282,11 @@ export class EventsService {
     }
   }
 
-  async searchEventsAndPlaces(
+  async searchEvents(
     search: string,
     start?: string,
     end?: string
-  ): Promise<{ events: EventEntityMinimize[]; places: PlaceEntityMinimize[] }> {
-    const places = await this.placesRepository
-      .find({
-        name: {
-          $regex: search,
-          $options: 'i'
-        }
-      })
-      .limit(10)
-
+  ): Promise<EventEntityMinimize[]> {
     const query = {
       name: {
         $regex: search,
@@ -303,7 +294,6 @@ export class EventsService {
       }
     }
 
-    console.log(start, end, search)
     query['beginAt'] = {
       $gte: start ? new Date(start) : new Date()
     }
@@ -320,20 +310,12 @@ export class EventsService {
 
     const events = await this.eventsRepository.find(query).limit(10)
 
-    return {
-      events: events.map((event) =>
-        plainToClass(EventEntityMinimize, event, {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true
-        })
-      ),
-      places: places.map((event) =>
-        plainToClass(PlaceEntityMinimize, event, {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true
-        })
-      )
-    }
+    return events.map((event) =>
+      plainToClass(EventEntityMinimize, event, {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true
+      })
+    )
   }
 
   async getNewEvents(

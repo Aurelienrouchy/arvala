@@ -18,6 +18,7 @@ import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard'
 import RequestWithUser from 'src/auth/requestWithUser.interface'
 import { ApiTags } from '@nestjs/swagger'
 import { PlaceEntityMinimize } from 'src/place/place.dto'
+import { UserEntityMinimize } from 'src/user/user.dto'
 @ApiTags('event')
 @Controller('event')
 export class EventsController {
@@ -105,8 +106,8 @@ export class EventsController {
     @Query('q') q: string,
     @Query('start') start?: string,
     @Query('end') end?: string
-  ): Promise<{ places: PlaceEntityMinimize[]; events: EventEntityMinimize[] }> {
-    return this.eventsService.searchEventsAndPlaces(q, start, end)
+  ): Promise<EventEntityMinimize[]> {
+    return this.eventsService.searchEvents(q, start, end)
   }
 
   @Get('filter')
